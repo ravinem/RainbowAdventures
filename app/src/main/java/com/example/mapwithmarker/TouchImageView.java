@@ -35,7 +35,7 @@ public class TouchImageView extends ImageView {
     // SuperMin and SuperMax multipliers. Determine how much the image can be
     // zoomed below or above the zoom boundaries, before animating back to the
     // min/max zoom boundary.
-    //
+    // This is a comment.
     private static final float SUPER_MIN_MULTIPLIER = .75f;
     private static final float SUPER_MAX_MULTIPLIER = 1.25f;
 
