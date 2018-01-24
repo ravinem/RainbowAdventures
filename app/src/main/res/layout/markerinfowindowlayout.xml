@@ -1,0 +1,100 @@
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/relativeLayout"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".ShowRainbowActivity">
+
+    <TextView
+        android:id="@+id/VRainbowName"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingStart="@dimen/textMarginLeftdp"
+        android:paddingLeft="@dimen/textMarginLeftdp"
+        android:textColor="@android:color/black"
+        android:textSize="@dimen/headingSize"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        />
+
+    <android.support.constraint.Guideline
+        android:id="@+id/guideline"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintGuide_percent="0.9"/>
+
+    <ScrollView
+        android:id="@+id/svDesc"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:fillViewport="true"
+        app:layout_constraintBottom_toTopOf="@id/guideline"
+        app:layout_constraintTop_toBottomOf="@id/VRainbowName">
+
+        <TextView
+            android:id="@+id/VTextDesc"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:fontFamily="cursive"
+            android:inputType="textMultiLine"
+            android:paddingLeft="@dimen/padding"
+            android:paddingTop="@dimen/padding"
+            android:textSize="@dimen/descSize"
+            android:text="vjhvjhvjhvj
+jvjvjhvjhvjvjhvjvhhhh
+
+
+
+
+
+
+
+
+
+
+
+
+vhvjhjhggggggggggggg
+gggggggggggggggggg
+ggggggggggggggggg"
+            app:layout_constraintBottom_toBottomOf="@+id/VRainbowName" />
+
+    </ScrollView>
+
+    <app:android.support.constraint.Guideline
+        android:id="@+id/guidelineVertRight"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent="0.85" />
+
+    <LinearLayout
+        android:id="@+id/adminBlock"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintTop_toBottomOf="@id/guideline">
+
+    <ImageButton
+        android:id="@+id/buttonDelete"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:paddingLeft="@dimen/textMarginLeftdp"
+        android:paddingStart="@dimen/textMarginLeftdp"
+        android:src="@android:drawable/ic_menu_delete"
+
+        android:onClick="onDelete"/>
+
+    <ImageButton
+        android:id="@+id/buttonEdit"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@android:drawable/ic_menu_edit"
+        android:onClick="onEdit"
+        app:layout_constraintStart_toEndOf="@id/guidelineVertRight"/>
+    </LinearLayout>
+</android.support.constraint.ConstraintLayout>

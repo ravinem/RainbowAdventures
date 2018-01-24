@@ -1,0 +1,60 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="horizontal"
+    tools:context=".CreateRainbowFragment"
+    >
+
+    <EditText
+        android:id="@+id/RainbowName"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:inputType="text"
+        android:hint="@string/create_rainbow_auto_text"
+        android:paddingLeft="@dimen/textMarginLeftdp"/>
+
+    <EditText
+        android:id="@+id/RainbowDesc"
+        android:layout_width="fill_parent"
+        android:layout_height="@dimen/largeTextInputHeight"
+        android:inputType="textMultiLine"
+        android:layout_below="@id/RainbowName"
+        android:hint="@string/create_rainbow_desc_text"
+        android:scrollbars="vertical"
+        android:minLines="5"
+        android:gravity="top"
+        android:paddingLeft="@dimen/textMarginLeftdp" />
+
+    <ImageButton
+        android:id="@+id/PicsButton"
+        android:layout_width="@dimen/cameraIconSizeDp"
+        android:layout_height="@dimen/cameraIconSizeDp"
+        android:layout_below="@+id/RainbowDesc"
+
+        android:src="@android:drawable/ic_menu_camera"
+        />
+<TextView
+    android:id="@+id/textviewImageNumber"
+    android:layout_width="wrap_content"
+    android:layout_height="@dimen/cameraIconSizeDp"
+    android:paddingLeft="@dimen/textMarginLeftdp"
+    android:layout_toRightOf="@id/PicsButton"
+    android:layout_below="@id/RainbowDesc"
+    android:gravity="center"
+    />
+
+    <Button
+        android:id="@+id/submitRainbow"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/textviewImageNumber"
+        android:background="@android:color/darker_gray"
+        android:text="@string/create_rainbow_submit_button"
+        android:textColor="@android:color/black"
+        android:textStyle="bold"
+        android:layout_marginStart="@dimen/buttonMarginLeftdp"
+        android:layout_marginLeft="@dimen/buttonMarginLeftdp"/>
+
+
+</RelativeLayout>

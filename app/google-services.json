@@ -1,0 +1,55 @@
+{
+  "project_info": {
+    "project_number": "705104912274",
+    "firebase_url": "https://rainbowadventures-b65aa.firebaseio.com",
+    "project_id": "rainbowadventures-b65aa",
+    "storage_bucket": "rainbowadventures-b65aa.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:705104912274:android:5eb8134f9b9639f4",
+        "android_client_info": {
+          "package_name": "com.example.mapwithmarker"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "705104912274-2k1gcajg4uhv61ek6gan74vhskqgb749.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.mapwithmarker",
+            "certificate_hash": "e2fc125fb9f132bd1267efdaceb3662e753bee47"
+          }
+        },
+        {
+          "client_id": "705104912274-qlq7d2rlq65h4vgdd5sv74q6s2dcqurn.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBJqMKJLPtleWtCRZrQAYKEqz2d4EENIsQ"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "705104912274-qlq7d2rlq65h4vgdd5sv74q6s2dcqurn.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

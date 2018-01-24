@@ -1,0 +1,32 @@
+<resources>
+    <string name="app_name">RainbowAdventures</string>
+    <string name="title_activity_maps">Create a Rainbow</string>
+    <string name="alert_dialog_title">Question</string>
+    <string name="alert_dialog_message">Is this a Rainbow?</string>
+    <string name="alert_delete_title">Sure?</string>
+    <string name="alert_delete_message">Delete this fine rainbow?</string>
+    <string name="alert_dialog_yes">Yes</string>
+    <string name="alert_dialog_no">No</string>
+    <string name="title_activity_create_rainbow">CreateRainbowActivity</string>
+    <string name="create_rainbow_auto_text">Enter Name</string>
+    <string name="create_rainbow_desc_text">My thoughts</string>\
+    <string name="create_rainbow_submit_button">Submit</string>
+    <string name="search_title">Search place</string>
+    <string name="search_hint">Search a place</string>
+    <integer name="maximum_photos_allowed_for_rainbow">4</integer>
+    <string name="number_image">images added of maximum</string>
+    <string name="maximum_image_allowed_number">5</string>
+    <string name="text_to_see_images">Photos</string>
+    <string name="dialog_select_place_value">Select place :</string>
+    <string name="forgotPasswordTextValue">Forgot password?</string>
+    <string name="RegisterHereTextValue">Register</string>
+
+    <string name="no_location_detected">
+        No location detected. Make sure location is enabled on the device.
+    </string>
+    <string name="permission_rationale">Location permission is needed for core functionality</string>
+    <string name="permission_denied_explanation">Permission was denied, but is needed for core
+        functionality.</string>
+    <string name="settings">Settings</string>
+
+</resources>
