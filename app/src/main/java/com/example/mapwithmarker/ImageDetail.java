@@ -1,14 +1,12 @@
 package com.example.mapwithmarker;
 
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.os.Bundle;
-import android.support.v7.app.ActionBar;
-import android.support.v7.app.AppCompatActivity;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 
-import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
+import com.theartofdev.fastimageloader.target.TargetAvatarImageView;
+import com.theartofdev.fastimageloader.target.TargetImageView;
 
 /**
  * Created by ravis on 07-01-2018.
@@ -25,17 +23,10 @@ public class ImageDetail extends BaseActivity {
     {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.image_detail);
-        //mImageView = (TouchImageView) findViewById(R.id.image);
         mImageView = (ImageView) findViewById(R.id.image);
         RainbowPhoto rainbowPhoto = getIntent().getParcelableExtra(EXTRA_SPACE_PHOTO);
-        //Bitmap bm = BitmapFactory.decodeFile(rainbowPhoto.getUrl());
-        //mImageView.setImageBitmap(bm);
-        Glide.with(this)
-                .load(rainbowPhoto.getUrl())
-                .asBitmap()
-                .placeholder(R.drawable.ic_search)
-                //.error(R.drawable.ic_cloud_off_red)
-                .diskCacheStrategy(DiskCacheStrategy.SOURCE)
-                .into(mImageView);
+        ProgressBar progressBar = (ProgressBar) findViewById(R.id.progressBar);
+        ZoomImageView zoomImageView = (ZoomImageView) findViewById(R.id.image);
+        zoomImageView.loadImage(rainbowPhoto.getUrl(), Specs.FULL_IMAGE, Specs.IMAGE_AVATAR, progressBar);
     }
 }

@@ -1,11 +1,15 @@
 package com.example.mapwithmarker;
 
+import android.app.Application;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
+
+import com.theartofdev.fastimageloader.FastImageLoader;
+
 
 /**
  * Created by ravis on 09-01-2018.
@@ -19,6 +23,7 @@ public class Login_activity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         setContentView(R.layout.login_activity);
         ActionBar ab = getSupportActionBar();
         if(ab!=null)
@@ -42,7 +47,7 @@ public class Login_activity extends AppCompatActivity {
     public void LoginClick(View view)
     {
 
-        PrefSingleton.getInstance().writePreference("userid", 2);
+        PrefSingleton.getInstance().writePreference("userid", 3);
         GoMain();
     }
 

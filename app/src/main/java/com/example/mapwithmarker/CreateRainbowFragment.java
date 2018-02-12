@@ -1,12 +1,15 @@
 package com.example.mapwithmarker;
 
 
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Debug;
 import android.os.Handler;
 import android.provider.MediaStore;
 import android.support.annotation.NonNull;
@@ -20,11 +23,13 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.ProgressBar;
 import android.widget.RatingBar;
 import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.dd.CircularProgressButton;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -62,6 +67,9 @@ public class CreateRainbowFragment extends BaseActivity implements View.OnClickL
     private int currentPhotosTakenNumber =0;
     private List<String> photos ;
     private StorageReference storageRef;
+    private CircularProgressButton circularButton = null;
+    ProgressDialog progressDialog;
+
     public CreateRainbowFragment() {
         // Required empty public constructor
     }
@@ -77,11 +85,13 @@ public class CreateRainbowFragment extends BaseActivity implements View.OnClickL
             _longi = getIntent().getDoubleExtra("longi", 0);
             _coords = new LatLng(_lati, _longi);
             tvNumberImages = (TextView) findViewById(R.id.textviewImageNumber);
+            circularButton = (CircularProgressButton)findViewById(R.id.circularButton);
+            circularButton.setIndeterminateProgressMode(true);
             filename = CreateRainbowFragment.df.format(_coords.latitude);
             addListenerOnButton();
             addListenerOnPicsButton();
         } catch (Exception e) {
-            e.printStackTrace();
+            Log.e("e",e.getMessage());
         }
     }
 
@@ -92,44 +102,19 @@ public class CreateRainbowFragment extends BaseActivity implements View.OnClickL
         button.setOnClickListener(this);
     }
 
+    public void onCircularClick(View view){
+        progressDialog = new ProgressDialog(this);
+        progressDialog.setMessage("Uploading ....");
+        progressDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
+        progressDialog.show();
+        progressDialog.setCancelable(false);
+        circularButton.setProgress(2);
+        new BackgroundProcess().execute(this);
+    }
+
     public void onClick(View view) {
         button.setText("Uploading...");
-        Handler h = new Handler();
-        h.post(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    UploadPicsToFirebase();
-                } catch (FileNotFoundException e) {
-                    e.printStackTrace();
-                }
-                Rainbow r =new Rainbow();
-                r.coords = _coords;
-                r.Name = ((EditText)findViewById(R.id.RainbowName)).getText().toString();
-                r.Description = ((EditText)findViewById(R.id.RainbowDesc)).getText().toString();
-                r.numberPics = currentPhotosTakenNumber;
-                r.photos = photos;
-                Gson g = new Gson();
-                String data = g.toJson(r);
-                File f = new File(getBaseContext().getFilesDir(),filename);
-
-                FileOutputStream outputStream;
-
-                try {
-                    outputStream = new FileOutputStream(f);
-                    outputStream.write(data.getBytes());
-                    outputStream.close();
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-                ClearFilesFromPhone();
-                Intent d = new Intent();
-                d.putExtra("lati",filename);
-                setResult(RESULT_OK,d);
-                finish();
-            }
-        });
-    }
+}
 
     public void addListenerOnPicsButton()
     {
@@ -218,8 +203,42 @@ public class CreateRainbowFragment extends BaseActivity implements View.OnClickL
             }
         }
 
+        public void StartUpload()
+        {
+            try {
+                UploadPicsToFirebase();
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+            }
+            Rainbow r =new Rainbow();
+            r.coords = _coords;
+            r.Name = ((EditText)findViewById(R.id.RainbowName)).getText().toString();
+            r.Description = ((EditText)findViewById(R.id.RainbowDesc)).getText().toString();
+            r.numberPics = currentPhotosTakenNumber;
+            r.photos = photos;
+            Gson g = new Gson();
+            String data = g.toJson(r);
+            File f = new File(getBaseContext().getFilesDir(),filename);
+
+            FileOutputStream outputStream;
+
+            try {
+                outputStream = new FileOutputStream(f);
+                outputStream.write(data.getBytes());
+                outputStream.close();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            ClearFilesFromPhone();
+            Intent d = new Intent();
+            d.putExtra("lati",filename);
+            setResult(RESULT_OK,d);
+            finish();
+        }
+
     private void UploadPicsToFirebase() throws FileNotFoundException {
         try {
+
             File picsDirectory = new File(getFilesDir(), filename + "D");
             String[] photoFiles = picsDirectory.list();
             photos = new ArrayList<String>();
@@ -227,41 +246,72 @@ public class CreateRainbowFragment extends BaseActivity implements View.OnClickL
             {
                 return;
             }
+            progressDialog.setMax(100*photoFiles.length);
             for (int i = 0; i < photoFiles.length; i++) {
-                InputStream stream = new FileInputStream(new File(picsDirectory.getAbsolutePath() + "/" + photoFiles[i]));
+                final int totali = photoFiles.length;
+                final int currenti = i;
+                //InputStream stream = new FileInputStream(new File(picsDirectory.getAbsolutePath() + "/" + photoFiles[i]));
+                File photoFile = new File(picsDirectory.getAbsolutePath() + "/" + photoFiles[i]);
+
+                Uri file = Uri.fromFile(photoFile);
                 //SharedPreferences sp = getPreferences(MODE_PRIVATE);
+
                 Integer userid = PrefSingleton.getInstance().readPreference("userid");
                 StorageReference imagesRef = storageRef.child(userid+"/"+filename+"/"+photoFiles[i]);
 
                 UploadTask uploadTask = null;
-                uploadTask = imagesRef.putStream(stream);
+                uploadTask = imagesRef.putFile(file);
+
+                uploadTask.addOnProgressListener(new OnProgressListener<UploadTask.TaskSnapshot>() {
+                    @Override
+                    public void onProgress(UploadTask.TaskSnapshot taskSnapshot) {
+
+                        double progress = (100.0 * taskSnapshot.getBytesTransferred()) / taskSnapshot.getTotalByteCount();
+
+                        //Log.d("progress",String.valueOf("current progress is "+ progress));
+
+                        //sets and increments value of progressbar
+                        progressDialog.setProgress(currenti*100 + (int) Math.floor(progress));
+                    }
+                });
                 uploadTask.addOnFailureListener(new OnFailureListener() {
                     @Override
                     public void onFailure(@NonNull Exception exception) {
                         // Handle unsuccessful uploads
+                        Toast.makeText(CreateRainbowFragment.this,"Error in uploading!",Toast.LENGTH_SHORT).show();
+                        progressDialog.dismiss();
                     }
                 }).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
                     @Override
                     public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-                        // taskSnapshot.getMetadata() contains file metadata such as size, content-type, and download URL.
-                        //Uri downloadUrl = taskSnapshot.getDownloadUrl();
+                        String s = taskSnapshot.getDownloadUrl().toString();
+                        photos.add(s);
+                        Log.d("progress","done with i =  " + String.valueOf(currenti));
                     }
                 });
-            }
-            List<UploadTask> l= storageRef.getActiveUploadTasks();
 
-            int counter = l.size();
+            List<UploadTask> l= storageRef.getActiveUploadTasks();
+                for (UploadTask t: l) {
+                    com.google.android.gms.tasks.Tasks.await(t);
+                }
+           /* int counter = l.size();
             while(counter > 0)
             {
-                for (UploadTask t : l)
+                for (int j=0;j<l.size();j++)
                 {
+                    UploadTask t = l.get(j);
                     if(t.isComplete())
                     {
-                        photos.add(t.getResult().getDownloadUrl().toString());
-                        counter--;
-                        //Toast.makeText(getApplicationContext(), "File Uploaded "+counter+ " remaining.", Toast.LENGTH_LONG).show();
+                        Log.d("progress","task completed");
+                        String s = t.getResult().getDownloadUrl().toString();
+                        if(!photos.contains(s)) {
+                            counter--;
+                            photos.add(s);
+                            break;
+                        }
+                        }
                     }
-                }
+            }*/
             }
 
         }
@@ -291,5 +341,31 @@ public class CreateRainbowFragment extends BaseActivity implements View.OnClickL
         ClearFilesFromPhone();
     }
 
+    class BackgroundProcess extends AsyncTask<CreateRainbowFragment,Integer,Integer> {
+        //private ProgressDialog progress;
+
+        @Override
+        protected Integer doInBackground(CreateRainbowFragment...arg){
+                arg[0].StartUpload();
+            return 1;
+
+            // do your processing here like sending data or downloading etc.
+        }
+        @Override
+        protected void onProgressUpdate(Integer... values) {
+            super.onProgressUpdate(values[0]);
+            //progress = ProgressDialog.show(YourActivity.this, "", "Wait...");
+        }
+        @Override
+        protected void onPostExecute(Integer result) {
+            super.onPostExecute(result);
+            //if(progress!=null)
+            //  progress.dismiss();
+            //progress = null;
+        }
     }
+
+    }
+
+
 

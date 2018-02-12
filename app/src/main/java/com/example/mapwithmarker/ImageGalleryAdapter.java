@@ -13,6 +13,8 @@ import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
+import com.theartofdev.fastimageloader.target.TargetAvatarImageView;
+import com.theartofdev.fastimageloader.target.TargetImageView;
 
 import java.io.File;
 
@@ -49,12 +51,19 @@ public class ImageGalleryAdapter extends RecyclerView.Adapter<ImageGalleryAdapte
     public void onBindViewHolder(ImageGalleryAdapter.MyViewHolder holder, int position) {
 
         RainbowPhoto spacePhoto = mSpacePhotos[position];
-        ImageView imageView = holder.mPhotoImageView;
+        ImageView imageView = ((MyViewHolder) holder).mPhotoImageView;
         //File f = new File(spacePhoto.getUrl());
-        Glide.with(mContext)
-              .load(spacePhoto.getUrl()).asBitmap().diskCacheStrategy(DiskCacheStrategy.SOURCE)
-                .placeholder(R.drawable.ic_search)
-              .into(imageView);
+        //Glide.with(mContext)
+          //    .load(spacePhoto.getUrl())//.diskCacheStrategy(DiskCacheStrategy.AUTOMATIC)
+              //.placeholder(R.drawable.ic_search)
+            //  .into(imageView);
+        try {
+            ((TargetAvatarImageView) (imageView)).loadImage(spacePhoto.getUrl(), Specs.IMAGE_AVATAR);
+        }
+        catch(Exception ex)
+        {
+         ex.printStackTrace();
+        }
     }
 
     @Override

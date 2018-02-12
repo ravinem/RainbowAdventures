@@ -17,6 +17,7 @@ import android.provider.Settings;
 import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -31,13 +32,16 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 
+import com.google.android.gms.maps.UiSettings;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
+
 import android.Manifest;
+
 import com.google.android.gms.tasks.Task;
 import com.google.gson.Gson;
 import com.rainbowadventures.utilities.GetCurrentLocationHelper;
@@ -54,7 +58,8 @@ import java.util.Locale;
  */
 public class MapsMarkerActivity extends BaseActivity
         implements OnMapReadyCallback, GoogleMap.OnMapClickListener, GoogleMap.OnMarkerClickListener
-        , GoogleMap.OnInfoWindowClickListener, AddressListDialogFragement.NoticeDialogListener {
+        , GoogleMap.OnInfoWindowClickListener, AddressListDialogFragement.NoticeDialogListener
+        , GoogleMap.OnMyLocationButtonClickListener, GoogleMap.OnMyLocationClickListener {
 
     private GoogleMap _googleMap;
     private static LatLng location = null;
@@ -66,7 +71,7 @@ public class MapsMarkerActivity extends BaseActivity
 
 
     private boolean isSearch = false;
-    private GetCurrentLocationHelper currentlocationhelperObject = new GetCurrentLocationHelper(this,mFusedLocationClient);
+    private GetCurrentLocationHelper currentlocationhelperObject = new GetCurrentLocationHelper(this, mFusedLocationClient);
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -74,7 +79,7 @@ public class MapsMarkerActivity extends BaseActivity
         super.onCreate(savedInstanceState);
         // Retrieve the content view that renders the map.
         setContentView(R.layout.activity_maps);
-        mFusedLocationClient = LocationServices.getFusedLocationProviderClient( this);
+        mFusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
         // Get the SupportMapFragment and request notification
         // when the map is ready to be used.
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
@@ -86,50 +91,34 @@ public class MapsMarkerActivity extends BaseActivity
             isSearch = true;
             String query = intent.getStringExtra(SearchManager.QUERY);
             try {
-                if(current==null) {
+                if (current == null) {
                     current = getResources().getConfiguration().locale;
                 }
                 Geocoder geocoder = new Geocoder(getBaseContext(), current);
                 locs = geocoder.getFromLocationName(query, 5);
-                if(locs!=null && !locs.isEmpty())
-                {
-                    if(locs.size() == 1) {
+                if (locs != null && !locs.isEmpty()) {
+                    if (locs.size() == 1) {
                         LatLng ll = new LatLng(locs.get(0).getLatitude(), locs.get(0).getLongitude());
                         location = ll;
-                    }
-                    else
-                    {
+                    } else {
                         CharSequence[] addrs = new CharSequence[locs.size()];
-                        for (int i = 0;i< locs.size();i++) {
+                        for (int i = 0; i < locs.size(); i++) {
                             addrs[i] = locs.get(i).getFeatureName();
                         }
                         Bundle b = new Bundle();
-                        b.putCharSequenceArray("locations",addrs);
+                        b.putCharSequenceArray("locations", addrs);
                         DialogFragment df = new AddressListDialogFragement();
                         df.setArguments(b);
-                        df.show(getFragmentManager(),"");
+                        df.show(getFragmentManager(), "");
                     }
                 }
-            }
-            catch(Exception e)
-            {
+            } catch (Exception e) {
                 e.printStackTrace();
             }
         }
     }
 
-    @Override
-    public void onStart() {
-        super.onStart();
-        if(!isSearch) {
-            if (!currentlocationhelperObject.checkPermissions()) {
-                currentlocationhelperObject.requestPermissions();
-            } else {
-                getLastLocation();
-            }
-            isSearch = false;
-        }
-    }
+
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -147,14 +136,13 @@ public class MapsMarkerActivity extends BaseActivity
         return true;
     }
 
-    public void onDialogItemClick(DialogFragment dialog)
-    {
-                Integer i = AddressListDialogFragement.index;
-                LatLng ll = new LatLng(locs.get(i).getLatitude(), locs.get(i).getLongitude());
-                _googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(ll,mapsZoom));
-                location = null;
-                dialog.dismiss();
-            }
+    public void onDialogItemClick(DialogFragment dialog) {
+        Integer i = AddressListDialogFragement.index;
+        LatLng ll = new LatLng(locs.get(i).getLatitude(), locs.get(i).getLongitude());
+        _googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(ll, mapsZoom));
+        location = null;
+        dialog.dismiss();
+    }
 
 
     /**
@@ -168,26 +156,50 @@ public class MapsMarkerActivity extends BaseActivity
      */
     @Override
     public void onMapReady(GoogleMap googleMap) {
+try {
+    _googleMap = googleMap;
+    if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
+            == PackageManager.PERMISSION_GRANTED) {
+        _googleMap.setMyLocationEnabled(true);
+    } else {
+        // Show rationale and request permission.
+        currentlocationhelperObject.requestPermissions();
+    }
 
-            _googleMap = googleMap;
-            _googleMap.setOnMapClickListener(this);
-            _googleMap.setOnInfoWindowClickListener(this);
-        _googleMap.setOnMarkerClickListener(this);
-            getFilesForMarkers();
-            if(location!= null)
-            {
-                _googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(location,mapsZoom));
-                location = null;
-            }
+    UiSettings u = _googleMap.getUiSettings();
+    u.setZoomControlsEnabled(true);
+
+    _googleMap.setOnMapClickListener(this);
+    _googleMap.setOnInfoWindowClickListener(this);
+    _googleMap.setOnMarkerClickListener(this);
+    getFilesForMarkers();
+    if (location != null) {
+        _googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(location, mapsZoom));
+        location = null;
+    }
+}
+catch(Exception e)
+{
+    e.printStackTrace();
+    throw e;
+}
+    }
+
+    @Override
+    public void onMyLocationClick(@NonNull Location location) {
 
     }
 
-    private void getFilesForMarkers()
-    {
+    @Override
+    public boolean onMyLocationButtonClick() {
+        getLastLocation();
+        return false;
+    }
+
+    private void getFilesForMarkers() {
         _googleMap.clear();
         File[] files = getFilesDir().listFiles();
-        for(File f : files)
-        {
+        for (File f : files) {
             Gson g = new Gson();
             String json;
             try {
@@ -198,53 +210,48 @@ public class MapsMarkerActivity extends BaseActivity
                 is.read(buffer);
                 is.close();
                 fr.close();
-                json = new String(buffer,"UTF-8");
-                Rainbow r = g.fromJson(json,Rainbow.class);
+                json = new String(buffer, "UTF-8");
+                Rainbow r = g.fromJson(json, Rainbow.class);
                 LatLng c = r.coords;
                 _googleMap.addMarker(new MarkerOptions().position(c)
-                      .title(r.Name));
-               // _googleMap.moveCamera(CameraUpdateFactory.newLatLng(c));
-            }
-            catch(Exception e)
-            {
+                        .title(r.Name));
+                // _googleMap.moveCamera(CameraUpdateFactory.newLatLng(c));
+            } catch (Exception e) {
                 e.printStackTrace();
             }
         }
     }
 
-    private Rainbow getFilesForMarkers(String filename)
-    {
-        File f = new File(getBaseContext().getFilesDir(),filename);
+    private Rainbow getFilesForMarkers(String filename) {
+        File f = new File(getBaseContext().getFilesDir(), filename);
         //for(File f : files)
         //{
-            Gson g = new Gson();
-            String json;
-            try {
-                FileInputStream fr = new FileInputStream(f);
-                InputStream is = fr;
-                int size = is.available();
-                byte[] buffer = new byte[size];
-                is.read(buffer);
-                is.close();
-                fr.close();
-                json = new String(buffer,"UTF-8");
-                Rainbow r = g.fromJson(json,Rainbow.class);
-                LatLng c = r.coords;
-                _googleMap.addMarker(new MarkerOptions().position(c)
-                        .title(r.Name));
-                // _googleMap.moveCamera(CameraUpdateFactory.newLatLng(c));
-                return r;
-            }
-            catch(Exception e)
-            {
-                e.printStackTrace();
-            }
-            return null;
+        Gson g = new Gson();
+        String json;
+        try {
+            FileInputStream fr = new FileInputStream(f);
+            InputStream is = fr;
+            int size = is.available();
+            byte[] buffer = new byte[size];
+            is.read(buffer);
+            is.close();
+            fr.close();
+            json = new String(buffer, "UTF-8");
+            Rainbow r = g.fromJson(json, Rainbow.class);
+            LatLng c = r.coords;
+            _googleMap.addMarker(new MarkerOptions().position(c)
+                    .title(r.Name));
+            // _googleMap.moveCamera(CameraUpdateFactory.newLatLng(c));
+            return r;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
         //}
     }
+
     @Override
-    public void onMapClick(LatLng coords)
-    {
+    public void onMapClick(LatLng coords) {
         final LatLng _coords = coords;
         AlertDialog.Builder aBuilder = new AlertDialog.Builder(this);
         aBuilder.setTitle(R.string.alert_dialog_title);
@@ -260,10 +267,8 @@ public class MapsMarkerActivity extends BaseActivity
                             intent.putExtra("lati", _coords.latitude);
                             intent.putExtra("longi", _coords.longitude);
 
-                            startActivityForResult(intent,90);
-                        }
-                        catch(Exception e)
-                        {
+                            startActivityForResult(intent, 90);
+                        } catch (Exception e) {
                             e.printStackTrace();
                         }
 
@@ -272,30 +277,29 @@ public class MapsMarkerActivity extends BaseActivity
                 .setNegativeButton(R.string.alert_dialog_no, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
-                            dialogInterface.cancel();
+                        dialogInterface.cancel();
                     }
                 });
         AlertDialog ad = aBuilder.create();
         ad.show();
     }
 
-            @Override
-            public boolean onMarkerClick(Marker marker) {
-        if(marker.isInfoWindowShown())
-        {
+    @Override
+    public boolean onMarkerClick(Marker marker) {
+        if (marker.isInfoWindowShown()) {
             marker.hideInfoWindow();
             return true;
-       }
+        }
 
-           String Filename = CreateRainbowFragment.df.format(marker.getPosition().latitude);
-           currRainbow = getFilesForMarkers(Filename);
-           marker.setTitle(currRainbow.Name);
-           marker.showInfoWindow();
-                return marker.isInfoWindowShown();
-            }
+        String Filename = CreateRainbowFragment.df.format(marker.getPosition().latitude);
+        currRainbow = getFilesForMarkers(Filename);
+        marker.setTitle(currRainbow.Name);
+        marker.showInfoWindow();
+        return marker.isInfoWindowShown();
+    }
 
-            @Override
-            public void onInfoWindowClick(Marker marker) {
+    @Override
+    public void onInfoWindowClick(Marker marker) {
         try {
             //String Filename = CreateRainbowFragment.df.format(marker.getPosition().latitude);
             //Rainbow r = getFilesForMarkers(Filename);
@@ -304,20 +308,18 @@ public class MapsMarkerActivity extends BaseActivity
             intent.putExtra("name", currRainbow.Name);
             intent.putExtra("desc", currRainbow.Description);
             intent.putExtra("lati", currRainbow.coords.latitude);
-            startActivityForResult(intent,80);
+            startActivityForResult(intent, 80);
 
-        }
-        catch(Exception e)
-        {
+        } catch (Exception e) {
             e.printStackTrace();
         }
-            }
+    }
 
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == 90) {
-            if(resultCode == Activity.RESULT_OK){
+            if (resultCode == Activity.RESULT_OK) {
                 String fileName = data.getStringExtra("lati");
                 getFilesForMarkers(fileName);
                 isSearch = true;
@@ -326,10 +328,8 @@ public class MapsMarkerActivity extends BaseActivity
                 //Write your code if there's no result
             }
         }
-        if(requestCode == 80)
-        {
-            if(resultCode == Activity.RESULT_OK)
-            {
+        if (requestCode == 80) {
+            if (resultCode == Activity.RESULT_OK) {
                 getFilesForMarkers();
             }
         }
@@ -342,8 +342,12 @@ public class MapsMarkerActivity extends BaseActivity
 
             if (grantResults.length <= 0) {
             } else if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                getLastLocation();
+
             } else {
+                if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                    _googleMap.setMyLocationEnabled(false);
+                    //return;
+                }
                 currentlocationhelperObject.showSnackbar(R.string.permission_denied_explanation, R.string.settings,
                         new View.OnClickListener() {
                             @Override
@@ -368,16 +372,16 @@ public class MapsMarkerActivity extends BaseActivity
                     @Override
                     public void onComplete(@NonNull Task<Location> task) {
                         if (task.isSuccessful() && task.getResult() != null) {
-                           Location mLastLocation = task.getResult();
-                            LatLng location= new LatLng(mLastLocation.getLatitude(),mLastLocation.getLongitude());
+                           //Location mLastLocation = task.getResult();
+                            //LatLng location= new LatLng(mLastLocation.getLatitude(),mLastLocation.getLongitude());
                             _googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(location,mapsZoom));
-                            _googleMap.addCircle(new CircleOptions()
+                            /*_googleMap.addCircle(new CircleOptions()
                                     .center(location)
                                     .clickable(false)
                                     .fillColor(Color.CYAN)
                                     .strokeColor(Color.BLUE)
                                     .radius(100)
-                                    .visible(true));
+                                    .visible(true));*/
                         } else {
                            currentlocationhelperObject.showSnackbar(getString(R.string.no_location_detected));
                         }
