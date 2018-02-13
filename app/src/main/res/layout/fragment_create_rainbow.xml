@@ -9,7 +9,7 @@
     >
     <RelativeLayout android:layout_width="match_parent"
         android:layout_height="match_parent">
-    <EditText
+    <com.rengwuxian.materialedittext.MaterialEditText
         android:id="@+id/RainbowName"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
@@ -17,7 +17,7 @@
         android:hint="@string/create_rainbow_auto_text"
         android:paddingLeft="@dimen/textMarginLeftdp"/>
 
-    <EditText
+    <com.rengwuxian.materialedittext.MaterialEditText
         android:id="@+id/RainbowDesc"
         android:layout_width="fill_parent"
         android:layout_height="@dimen/largeTextInputHeight"
@@ -34,16 +34,25 @@
         android:layout_width="@dimen/cameraIconSizeDp"
         android:layout_height="@dimen/cameraIconSizeDp"
         android:layout_below="@+id/RainbowDesc"
-
         android:src="@android:drawable/ic_menu_camera"
         />
+    <ImageButton
+            android:id="@+id/GalleryButton"
+            android:layout_width="@dimen/cameraIconSizeDp"
+            android:layout_height="@dimen/cameraIconSizeDp"
+            android:layout_below="@+id/RainbowDesc"
+            android:layout_toRightOf="@id/PicsButton"
+            android:src="@android:drawable/ic_menu_gallery"
+        />
+
 <TextView
     android:id="@+id/textviewImageNumber"
     android:layout_width="wrap_content"
     android:layout_height="@dimen/cameraIconSizeDp"
     android:paddingLeft="@dimen/textMarginLeftdp"
-    android:layout_toRightOf="@id/PicsButton"
-    android:layout_below="@id/RainbowDesc"
+    android:layout_marginStart="@dimen/buttonSubmitMarginLeftdp"
+    android:layout_marginLeft="@dimen/buttonSubmitMarginLeftdp"
+    android:layout_below="@id/PicsButton"
     android:gravity="center"
     />
 
@@ -56,19 +65,8 @@
         android:text="@string/create_rainbow_submit_button"
         android:textColor="@android:color/black"
         android:textStyle="bold"
-        android:layout_marginStart="@dimen/buttonMarginLeftdp"
-        android:layout_marginLeft="@dimen/buttonMarginLeftdp"/>
-
-    <com.dd.CircularProgressButton
-        android:id="@+id/circularButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textColor="@color/colorPrimary"
-        android:textSize="18sp"
-        android:layout_toRightOf="@id/submitRainbow"
-        android:layout_below="@+id/textviewImageNumber"
-        android:onClick="onCircularClick"
-       />
+        android:layout_marginStart="@dimen/buttonSubmitMarginLeftdp"
+        android:layout_marginLeft="@dimen/buttonSubmitMarginLeftdp"/>
 
 
 </RelativeLayout>

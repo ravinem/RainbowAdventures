@@ -29,7 +29,6 @@ import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.dd.CircularProgressButton;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -39,6 +38,7 @@ import com.google.firebase.storage.OnProgressListener;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 import com.google.gson.Gson;
+import com.rainbowadventures.utilities.GetCurrentLocationHelper;
 
 import org.json.JSONObject;
 
@@ -67,8 +67,9 @@ public class CreateRainbowFragment extends BaseActivity implements View.OnClickL
     private int currentPhotosTakenNumber =0;
     private List<String> photos ;
     private StorageReference storageRef;
-    private CircularProgressButton circularButton = null;
-    ProgressDialog progressDialog;
+    private ProgressDialog progressDialog;
+    static final int REQUEST_IMAGE_CAPTURE = 1;
+    static final int REQUEST_GALLERY_CAPTURE = 2;
 
     public CreateRainbowFragment() {
         // Required empty public constructor
@@ -85,11 +86,10 @@ public class CreateRainbowFragment extends BaseActivity implements View.OnClickL
             _longi = getIntent().getDoubleExtra("longi", 0);
             _coords = new LatLng(_lati, _longi);
             tvNumberImages = (TextView) findViewById(R.id.textviewImageNumber);
-            circularButton = (CircularProgressButton)findViewById(R.id.circularButton);
-            circularButton.setIndeterminateProgressMode(true);
             filename = CreateRainbowFragment.df.format(_coords.latitude);
             addListenerOnButton();
             addListenerOnPicsButton();
+            attachGalleryButtonOnClick();
         } catch (Exception e) {
             Log.e("e",e.getMessage());
         }
@@ -102,18 +102,19 @@ public class CreateRainbowFragment extends BaseActivity implements View.OnClickL
         button.setOnClickListener(this);
     }
 
-    public void onCircularClick(View view){
+
+    public void onClick(View view) {
+        if(((EditText)findViewById(R.id.RainbowName)).getText().toString().isEmpty())
+        {
+            return;
+        }
+        button.setText("Uploading");
         progressDialog = new ProgressDialog(this);
         progressDialog.setMessage("Uploading ....");
         progressDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
         progressDialog.show();
         progressDialog.setCancelable(false);
-        circularButton.setProgress(2);
         new BackgroundProcess().execute(this);
-    }
-
-    public void onClick(View view) {
-        button.setText("Uploading...");
 }
 
     public void addListenerOnPicsButton()
@@ -128,7 +129,34 @@ public class CreateRainbowFragment extends BaseActivity implements View.OnClickL
         });
     }
 
-    static final int REQUEST_IMAGE_CAPTURE = 1;
+    public void attachGalleryButtonOnClick()
+    {
+        int df = R.id.GalleryButton;
+        ImageButton galleryButton = (ImageButton) findViewById(df);
+        final AppCompatActivity ac = this;
+        galleryButton.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View view)
+            {
+                try {
+                    //if (GetCurrentLocationHelper.checkPermission(ac)) {
+                        galleryIntent();
+                    //}
+                }
+                catch(Exception ex)
+                {
+                    Log.e("gallery",ex.getMessage());
+                }
+            }
+        });
+    }
+
+    private void galleryIntent()
+    {
+        Intent intent = new Intent();
+        intent.setType("image/*");
+        intent.setAction(Intent.ACTION_GET_CONTENT);//
+        startActivityForResult(Intent.createChooser(intent, "Select File"),REQUEST_GALLERY_CAPTURE);
+    }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -138,6 +166,15 @@ public class CreateRainbowFragment extends BaseActivity implements View.OnClickL
                         getResources().getString(R.string.number_image)
                         + " " + getResources().getString(R.string.maximum_image_allowed_number);
             tvNumberImages.setText(s);
+
+        }
+        if (requestCode == REQUEST_GALLERY_CAPTURE && resultCode == RESULT_OK) {
+            currentPhotosTakenNumber++;
+            String s = String.valueOf(currentPhotosTakenNumber)+ " "+
+                    getResources().getString(R.string.number_image)
+                    + " " + getResources().getString(R.string.maximum_image_allowed_number);
+            tvNumberImages.setText(s);
+            onSelectFromGalleryResult(data);
 
         }
     }
@@ -166,6 +203,31 @@ public class CreateRainbowFragment extends BaseActivity implements View.OnClickL
         // Save a file: path for use with ACTION_VIEW intents
         mCurrentPhotoPath = image.getAbsolutePath();
         return image;
+    }
+
+    @SuppressWarnings("deprecation")
+    private void onSelectFromGalleryResult(Intent data) {
+        if(currentPhotosTakenNumber > getResources().getInteger(R.integer.maximum_photos_allowed_for_rainbow))
+        {
+            return;
+        }
+        File photoFile = null;
+        try {
+            photoFile = createImageFile();
+        } catch (IOException ex) {
+            ex.printStackTrace();
+            // Error occurred while creating the File
+        }
+        Bitmap bm=null;
+        if (data != null) {
+            try {
+                bm = MediaStore.Images.Media.getBitmap(getApplicationContext().getContentResolver(), data.getData());
+                FileOutputStream otst = new FileOutputStream(photoFile);
+                bm.compress(Bitmap.CompressFormat.JPEG,9,otst);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
     }
 
     static final int REQUEST_TAKE_PHOTO = 1;

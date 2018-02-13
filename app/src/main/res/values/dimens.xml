@@ -5,6 +5,7 @@
     <dimen name="largeTextInputHeight">250dp</dimen>
     <dimen name="cameraIconSizeDp">80dp</dimen>
     <dimen name="buttonMarginLeftdp">12dp</dimen>
+    <dimen name="buttonSubmitMarginLeftdp">8dp</dimen>
     <dimen name="headingSize">26sp</dimen>
     <dimen name="descSize">20sp</dimen>
 </resources>
