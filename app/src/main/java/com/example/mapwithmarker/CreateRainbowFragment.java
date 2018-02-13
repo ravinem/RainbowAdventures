@@ -3,6 +3,7 @@ package com.example.mapwithmarker;
 
 import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
@@ -15,6 +16,7 @@ import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.v4.content.FileProvider;
 import android.support.v7.app.ActionBar;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.util.JsonReader;
 import android.util.JsonWriter;
@@ -171,13 +173,30 @@ public class CreateRainbowFragment extends BaseActivity implements View.OnClickL
 
         }
         if (requestCode == REQUEST_GALLERY_CAPTURE && resultCode == RESULT_OK) {
-            currentPhotosTakenNumber++;
-            String s = String.valueOf(currentPhotosTakenNumber)+ " "+
-                    getResources().getString(R.string.number_image)
-                    + " " + getResources().getString(R.string.maximum_image_allowed_number);
-            tvNumberImages.setText(s);
-            onSelectFromGalleryResult(data);
-
+            final Intent _data = data;
+            AlertDialog.Builder aBuilder = new AlertDialog.Builder(this);
+            aBuilder.setTitle(R.string.alert_dialog_title);
+            aBuilder.setMessage(R.string.gallery_dialog_message)
+                    .setCancelable(false)
+                    .setPositiveButton(R.string.alert_dialog_yes, new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialogInterface, int i) {
+                            currentPhotosTakenNumber++;
+                            String s = String.valueOf(currentPhotosTakenNumber)+ " "+
+                                    getResources().getString(R.string.number_image)
+                                    + " " + getResources().getString(R.string.maximum_image_allowed_number);
+                            tvNumberImages.setText(s);
+                            onSelectFromGalleryResult(_data);
+                        }
+                    })
+                    .setNegativeButton(R.string.alert_dialog_no, new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialogInterface, int i) {
+                            dialogInterface.cancel();
+                        }
+                    });
+            AlertDialog ad = aBuilder.create();
+            ad.show();
         }
     }
 

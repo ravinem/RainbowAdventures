@@ -2,6 +2,7 @@ package com.example.mapwithmarker;
 
 import android.app.Activity;
 import android.app.DialogFragment;
+import android.app.ProgressDialog;
 import android.app.SearchManager;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -23,8 +24,15 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.ProgressBar;
 import android.widget.SearchView;
 
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.StringRequest;
+import com.android.volley.toolbox.Volley;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -61,6 +69,7 @@ public class MapsMarkerActivity extends BaseActivity
         , GoogleMap.OnInfoWindowClickListener, AddressListDialogFragement.NoticeDialogListener
         , GoogleMap.OnMyLocationButtonClickListener, GoogleMap.OnMyLocationClickListener {
 
+    public static final String TAG = "MapsMarkerActivity";
     private GoogleMap _googleMap;
     private static LatLng location = null;
     private Rainbow currRainbow;
@@ -68,8 +77,7 @@ public class MapsMarkerActivity extends BaseActivity
     private Locale current;
     private final int mapsZoom = 15;
     private FusedLocationProviderClient mFusedLocationClient;
-
-
+    private RequestQueue queue;
     private boolean isSearch = false;
     private GetCurrentLocationHelper currentlocationhelperObject = new GetCurrentLocationHelper(this, mFusedLocationClient);
 
@@ -94,31 +102,29 @@ public class MapsMarkerActivity extends BaseActivity
                 if (current == null) {
                     current = getResources().getConfiguration().locale;
                 }
-                Geocoder geocoder = new Geocoder(getBaseContext(), current);
-                locs = geocoder.getFromLocationName(query, 5);
-                if (locs != null && !locs.isEmpty()) {
-                    if (locs.size() == 1) {
-                        LatLng ll = new LatLng(locs.get(0).getLatitude(), locs.get(0).getLongitude());
-                        location = ll;
-                    } else {
-                        CharSequence[] addrs = new CharSequence[locs.size()];
-                        for (int i = 0; i < locs.size(); i++) {
-                            addrs[i] = locs.get(i).getFeatureName();
-                        }
-                        Bundle b = new Bundle();
-                        b.putCharSequenceArray("locations", addrs);
-                        DialogFragment df = new AddressListDialogFragement();
-                        df.setArguments(b);
-                        df.show(getFragmentManager(), "");
-                    }
+                if(com.rainbowadventures.utilities.GetCurrentLocationHelper.IsInternetConnectivityAvailable(getBaseContext()))
+                {
+                    PrepareVolley(query,current);
                 }
+                else {
+                    Geocoder geocoder = new Geocoder(getBaseContext(), current);
+                    locs = geocoder.getFromLocationName(query, 5);
+                    ShowLocationThatsSearched();
+                }
+
             } catch (Exception e) {
                 e.printStackTrace();
             }
         }
     }
 
-
+    @Override
+    protected void onStop () {
+        super.onStop();
+        if (queue != null) {
+            queue.cancelAll(TAG);
+        }
+    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -143,7 +149,6 @@ public class MapsMarkerActivity extends BaseActivity
         location = null;
         dialog.dismiss();
     }
-
 
     /**
      * Manipulates the map when it's available.
@@ -389,4 +394,63 @@ catch(Exception e)
                 });
     }
 
+    private void ShowLocationThatsSearched()
+    {
+        if (locs != null && !locs.isEmpty()) {
+            if (locs.size() == 1) {
+                LatLng ll = new LatLng(locs.get(0).getLatitude(), locs.get(0).getLongitude());
+                location = ll;
+            } else {
+                CharSequence[] addrs = new CharSequence[locs.size()];
+                for (int i = 0; i < locs.size(); i++) {
+                    addrs[i] = locs.get(i).getFeatureName();
+                }
+                Bundle b = new Bundle();
+                b.putCharSequenceArray("locations", addrs);
+                DialogFragment df = new AddressListDialogFragement();
+                df.setArguments(b);
+                df.show(getFragmentManager(), "");
+            }
         }
+    }
+
+    private void PrepareVolley(String query,final Locale locale)
+    {
+        if(query.isEmpty())
+        {
+            return;
+        }
+        final ProgressDialog progressDialog = new ProgressDialog(this);
+        progressDialog.setMessage("Searching");
+        progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+        progressDialog.show();
+        progressDialog.setCancelable(false);
+
+        String searchKey = getResources().getString(R.string.googlePlaceKeySearch);
+        query = query.replace(' ','+');
+        String searchUrl = "https://maps.googleapis.com/maps/api/geocode/json?address="+query+"&key="+searchKey;
+        queue = Volley.newRequestQueue(this);
+        // Request a string response from the provided URL.
+        StringRequest stringRequest = new StringRequest(Request.Method.GET, searchUrl,
+                new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String response) {
+                        locs = com.rainbowadventures.utilities.GetCurrentLocationHelper.ConvertLocationJsonToAddress(response,locale);
+                        ShowLocationThatsSearched();
+                        if (location != null) {
+                            _googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(location, mapsZoom));
+                            location = null;
+                        }
+                        progressDialog.dismiss();
+                    }
+                }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                progressDialog.dismiss();
+            }
+        });
+        stringRequest.setTag(TAG);
+        // Add the request to the RequestQueue.
+        queue.add(stringRequest);
+    }
+}

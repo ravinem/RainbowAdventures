@@ -3,6 +3,7 @@
     <string name="title_activity_maps">Create a Rainbow</string>
     <string name="alert_dialog_title">Question</string>
     <string name="alert_dialog_message">Is this a Rainbow?</string>
+    <string name="gallery_dialog_message">Want to save that photo?</string>
     <string name="alert_delete_title">Sure?</string>
     <string name="alert_delete_message">Delete this fine rainbow?</string>
     <string name="alert_dialog_yes">Yes</string>
@@ -20,6 +21,7 @@
     <string name="dialog_select_place_value">Select place :</string>
     <string name="forgotPasswordTextValue">Forgot password?</string>
     <string name="RegisterHereTextValue">Register</string>
+    <string name="googlePlaceKeySearch">AIzaSyBjnEbpS2mtq8_3FBPEc40K3MsUBLjW4cI</string>
 
     <string name="no_location_detected">
         No location detected. Make sure location is enabled on the device.

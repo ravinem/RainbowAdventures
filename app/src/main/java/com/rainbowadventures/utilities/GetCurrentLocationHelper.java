@@ -8,7 +8,10 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.location.Address;
 import android.location.Location;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Build;
 import android.provider.Settings;
@@ -28,6 +31,14 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Locale;
 
 /**
  * Created by ravis on 18-01-2018.
@@ -123,4 +134,39 @@ public class GetCurrentLocationHelper  {
         }
     }
 
+    public static boolean IsInternetConnectivityAvailable(Context context)
+    {
+        ConnectivityManager cm =
+                (ConnectivityManager)context.getSystemService(Context.CONNECTIVITY_SERVICE);
+
+        NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
+        boolean isConnected = activeNetwork != null &&
+                activeNetwork.isConnectedOrConnecting();
+        return isConnected;
+    }
+
+    public static List<Address> ConvertLocationJsonToAddress(String json, Locale locale)
+    {
+        JSONArray jsonObject = null;
+        List<Address> addrlist = new ArrayList<Address>();
+        try {
+            jsonObject = new JSONObject(json).getJSONArray("results");
+            for(int i=0;i<Math.min(jsonObject.length(),5);i++)
+            {
+                JSONObject o = jsonObject.getJSONObject(i);
+                JSONObject locationJson =  o.getJSONObject("geometry").getJSONObject("location");
+                String formattedName = o.getJSONArray("address_components").getJSONObject(0).getString("short_name");
+                String eventLat = locationJson.getString("lat");
+                String eventLng = locationJson.getString("lng");
+                Address addr = new Address(locale);
+                addr.setLatitude(Double.parseDouble(eventLat));
+                addr.setLongitude(Double.parseDouble(eventLng));
+                addr.setFeatureName(formattedName);
+                addrlist.add(addr);
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        return addrlist;
+    }
 }
