@@ -42,4 +42,7 @@ public class PrefSingleton{
     public Integer readPreference(String key){
         return mMyPreferences.getInt(key,0);
     }
+    public String readPreferenceString(String key){
+        return mMyPreferences.getString(key,"");
+    }
 }

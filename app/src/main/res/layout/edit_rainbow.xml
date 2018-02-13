@@ -1,60 +1,118 @@
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<android.support.constraint.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
 xmlns:tools="http://schemas.android.com/tools"
 android:layout_width="match_parent"
 android:layout_height="match_parent"
 android:orientation="horizontal"
 tools:context=".Edit_rainbow"
     >
+    <android.support.constraint.Guideline
+        android:id="@+id/glLeftLine"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent="0.02"
+        />
 
-<EditText
-    android:id="@+id/ERainbowName"
-    android:layout_width="fill_parent"
-    android:layout_height="wrap_content"
-    android:inputType="text"
-    android:hint="@string/create_rainbow_auto_text"
-    android:paddingLeft="@dimen/textMarginLeftdp"/>
+    <android.support.constraint.Guideline
+        android:id="@+id/glName"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="horizontal"
+        app:layout_constraintGuide_percent="0.01"
+        />
+    <android.support.constraint.Guideline
+        android:id="@+id/glDescriptionStart"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="horizontal"
+        app:layout_constraintGuide_percent="0.1"
+        />
+    <android.support.constraint.Guideline
+        android:id="@+id/glDescription"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="horizontal"
+        app:layout_constraintGuide_percent="0.7"
+        />
+    <android.support.constraint.Guideline
+        android:id="@+id/glDescriptionEnd"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent="0.98"
+        />
+    <android.support.constraint.Guideline
+        android:id="@+id/glSubmit"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="horizontal"
+        app:layout_constraintGuide_percent="0.9"
+        />
+    <android.support.constraint.Guideline
+        android:id="@+id/glTextImagesNumber"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="horizontal"
+        app:layout_constraintGuide_percent="0.8"
+        />
 
-<EditText
-    android:id="@+id/ERainbowDesc"
-    android:layout_width="fill_parent"
-    android:layout_height="@dimen/largeTextInputHeight"
-    android:inputType="textMultiLine"
-    android:layout_below="@id/ERainbowName"
-    android:hint="@string/create_rainbow_desc_text"
-    android:scrollbars="vertical"
-    android:minLines="5"
-    android:gravity="top"
-    android:paddingLeft="@dimen/textMarginLeftdp" />
+<com.rengwuxian.materialedittext.MaterialEditText
+        android:id="@+id/ERainbowName"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:inputType="text"
+        android:hint="@string/create_rainbow_auto_text"
+        app:layout_constraintTop_toTopOf="@id/glName"
+        app:layout_constraintStart_toEndOf="@id/glLeftLine"
+        />
 
-<!--<ImageButton
-    android:id="@+id/EPicsButton"
-    android:layout_width="@dimen/cameraIconSizeDp"
-    android:layout_height="@dimen/cameraIconSizeDp"
-    android:layout_below="@+id/ERainbowDesc"
-    android:visibility="invisible"
-    android:src="@android:drawable/ic_menu_camera"
-    />-->
+    <com.rengwuxian.materialedittext.MaterialEditText
+        android:id="@+id/ERainbowDesc"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:inputType="textMultiLine"
+        android:hint="@string/create_rainbow_desc_text"
+        android:scrollbars="vertical"
+        android:minLines="5"
+        android:gravity="top"
+        android:layout_marginTop="4sp"
+        android:paddingTop="4sp"
+        app:layout_constraintWidth_min="@dimen/largeTextInputHeight"
+        app:layout_constraintBottom_toTopOf="@id/glDescription"
+        app:layout_constraintTop_toBottomOf="@id/glDescriptionStart"
+        app:layout_constraintStart_toStartOf="@id/glLeftLine"
+        app:layout_constraintEnd_toEndOf="@id/glDescriptionEnd"
+        />
+
 <TextView
-    android:id="@+id/EtextviewImageNumber"
+    android:id="@+id/kk"
     android:layout_width="wrap_content"
     android:layout_height="@dimen/cameraIconSizeDp"
     android:paddingLeft="@dimen/textMarginLeftdp"
     android:layout_below="@id/ERainbowDesc"
     android:gravity="center"
     />
-
+    <TextView
+        android:id="@+id/EtextviewImageNumber"
+        android:layout_width="wrap_content"
+        android:layout_height="@dimen/cameraIconSizeDp"
+        android:gravity="center"
+        app:layout_constraintTop_toTopOf="@id/glTextImagesNumber"
+        app:layout_constraintStart_toStartOf="@id/glLeftLine"
+        />
 <Button
     android:id="@+id/EsubmitRainbow"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
-    android:layout_below="@+id/EtextviewImageNumber"
     android:background="@android:color/darker_gray"
     android:text="@string/create_rainbow_submit_button"
     android:textColor="@android:color/black"
     android:textStyle="bold"
-    android:layout_marginStart="@dimen/buttonMarginLeftdp"
-    android:layout_marginLeft="@dimen/buttonMarginLeftdp"
+    app:layout_constraintTop_toTopOf="@id/glSubmit"
+    app:layout_constraintStart_toStartOf="@id/glLeftLine"
     android:onClick="submitClick"/>
 
 
-</RelativeLayout>
+</android.support.constraint.ConstraintLayout>

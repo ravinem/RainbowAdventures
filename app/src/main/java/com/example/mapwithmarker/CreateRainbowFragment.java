@@ -39,6 +39,7 @@ import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 import com.google.gson.Gson;
 import com.rainbowadventures.utilities.GetCurrentLocationHelper;
+import com.rengwuxian.materialedittext.MaterialEditText;
 
 import org.json.JSONObject;
 
@@ -106,6 +107,7 @@ public class CreateRainbowFragment extends BaseActivity implements View.OnClickL
     public void onClick(View view) {
         if(((EditText)findViewById(R.id.RainbowName)).getText().toString().isEmpty())
         {
+            ((MaterialEditText)findViewById(R.id.RainbowName)).setError( "Rainbow name is required!" );
             return;
         }
         button.setText("Uploading");
@@ -318,7 +320,7 @@ public class CreateRainbowFragment extends BaseActivity implements View.OnClickL
                 Uri file = Uri.fromFile(photoFile);
                 //SharedPreferences sp = getPreferences(MODE_PRIVATE);
 
-                Integer userid = PrefSingleton.getInstance().readPreference("userid");
+                String userid = PrefSingleton.getInstance().readPreferenceString("userid");
                 StorageReference imagesRef = storageRef.child(userid+"/"+filename+"/"+photoFiles[i]);
 
                 UploadTask uploadTask = null;

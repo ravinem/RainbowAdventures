@@ -7,7 +7,9 @@ import android.os.Bundle;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
+import android.widget.EditText;
 
+import com.rengwuxian.materialedittext.MaterialEditText;
 import com.theartofdev.fastimageloader.FastImageLoader;
 
 
@@ -32,8 +34,8 @@ public class Login_activity extends AppCompatActivity {
         }
         PrefSingleton.getInstance().Initialize(getApplicationContext());
 
-        Integer UserId = PrefSingleton.getInstance().readPreference("userid");
-        if(UserId > 0)
+        String UserId = PrefSingleton.getInstance().readPreferenceString("userid");
+        if(!UserId.isEmpty())
         {
             GoMain();
         }
@@ -46,8 +48,13 @@ public class Login_activity extends AppCompatActivity {
     }
     public void LoginClick(View view)
     {
-
-        PrefSingleton.getInstance().writePreference("userid", 3);
+        String s = ((EditText)findViewById(R.id.textUsername)).getText().toString();
+        if(s.isEmpty())
+        {
+            ((EditText)findViewById(R.id.textUsername)).setError( "User name is required!" );
+            return;
+        }
+        PrefSingleton.getInstance().writePreference("userid", s);
         GoMain();
     }
 
