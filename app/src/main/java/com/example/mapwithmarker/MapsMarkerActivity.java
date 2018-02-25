@@ -8,7 +8,6 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.graphics.Color;
 import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
@@ -16,15 +15,12 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.provider.Settings;
 import android.support.annotation.NonNull;
-import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.view.Menu;
 import android.view.MenuInflater;
-import android.view.MenuItem;
 import android.view.View;
-import android.widget.ProgressBar;
 import android.widget.SearchView;
 
 import com.android.volley.Request;
@@ -41,8 +37,6 @@ import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 
 import com.google.android.gms.maps.UiSettings;
-import com.google.android.gms.maps.model.BitmapDescriptorFactory;
-import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
@@ -52,11 +46,13 @@ import android.Manifest;
 
 import com.google.android.gms.tasks.Task;
 import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import com.rainbowadventures.utilities.GetCurrentLocationHelper;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -177,7 +173,9 @@ try {
     _googleMap.setOnMapClickListener(this);
     _googleMap.setOnInfoWindowClickListener(this);
     _googleMap.setOnMarkerClickListener(this);
-    getFilesForMarkers();
+    // getFilesForMarkers();
+    String id = PrefSingleton.getInstance().readPreferenceString("userid");
+    PrepareVolleyAllRainbows(AppApplication.baseurl + "/getallRainbowbyUserId?user_id="+id);
     if (location != null) {
         _googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(location, mapsZoom));
         location = null;
@@ -217,9 +215,9 @@ catch(Exception e)
                 fr.close();
                 json = new String(buffer, "UTF-8");
                 Rainbow r = g.fromJson(json, Rainbow.class);
-                LatLng c = r.coords;
+                LatLng c = new LatLng(r.latitude,r.longitude);
                 _googleMap.addMarker(new MarkerOptions().position(c)
-                        .title(r.Name));
+                        .title(r.rainbow_name));
                 // _googleMap.moveCamera(CameraUpdateFactory.newLatLng(c));
             } catch (Exception e) {
                 e.printStackTrace();
@@ -243,9 +241,9 @@ catch(Exception e)
             fr.close();
             json = new String(buffer, "UTF-8");
             Rainbow r = g.fromJson(json, Rainbow.class);
-            LatLng c = r.coords;
+            LatLng c = new LatLng(r.latitude,r.longitude);
             _googleMap.addMarker(new MarkerOptions().position(c)
-                    .title(r.Name));
+                    .title(r.rainbow_name));
             // _googleMap.moveCamera(CameraUpdateFactory.newLatLng(c));
             return r;
         } catch (Exception e) {
@@ -298,7 +296,7 @@ catch(Exception e)
 
         String Filename = CreateRainbowFragment.df.format(marker.getPosition().latitude);
         currRainbow = getFilesForMarkers(Filename);
-        marker.setTitle(currRainbow.Name);
+        marker.setTitle(currRainbow.rainbow_name);
         marker.showInfoWindow();
         return marker.isInfoWindowShown();
     }
@@ -310,9 +308,9 @@ catch(Exception e)
             //Rainbow r = getFilesForMarkers(Filename);
             Intent intent = new Intent(getBaseContext(), ShowRainbowActivity.class);
             //ShowRainbowActivity f = new ShowRainbowActivity();
-            intent.putExtra("name", currRainbow.Name);
-            intent.putExtra("desc", currRainbow.Description);
-            intent.putExtra("lati", currRainbow.coords.latitude);
+            intent.putExtra("name", currRainbow.rainbow_name);
+            intent.putExtra("desc", currRainbow.description);
+            intent.putExtra("lati", currRainbow.latitude);
             startActivityForResult(intent, 80);
 
         } catch (Exception e) {
@@ -335,7 +333,9 @@ catch(Exception e)
         }
         if (requestCode == 80) {
             if (resultCode == Activity.RESULT_OK) {
-                getFilesForMarkers();
+                //getFilesForMarkers();
+                String id = PrefSingleton.getInstance().readPreferenceString("userId");
+                PrepareVolleyAllRainbows(AppApplication.baseurl + "getallRainbowbyUserId?user_id="+id);
             }
         }
     }
@@ -440,6 +440,47 @@ catch(Exception e)
                         if (location != null) {
                             _googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(location, mapsZoom));
                             location = null;
+                        }
+                        progressDialog.dismiss();
+                    }
+                }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                progressDialog.dismiss();
+            }
+        });
+        stringRequest.setTag(TAG);
+        // Add the request to the RequestQueue.
+        queue.add(stringRequest);
+    }
+
+    private void PrepareVolleyAllRainbows(final String query)
+    {
+        if(query.isEmpty())
+        {
+            return;
+        }
+        final ProgressDialog progressDialog = new ProgressDialog(this);
+        progressDialog.setMessage("Searching");
+        progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+        progressDialog.show();
+        progressDialog.setCancelable(false);
+
+        queue = Volley.newRequestQueue(this);
+
+        // Request a string response from the provided URL.
+        StringRequest stringRequest = new StringRequest(Request.Method.GET,
+                query,
+                new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String response) {
+                        Gson g= new Gson();
+                        Type listType = new TypeToken<ArrayList<Rainbow>>(){}.getType();
+                        List<Rainbow> rs = g.fromJson(response,listType);
+                        for (Rainbow r :rs) {
+                            LatLng c = new LatLng(r.latitude,r.longitude);
+                            _googleMap.addMarker(new MarkerOptions().position(c)
+                                  .title(r.rainbow_name).snippet(String.valueOf(r.id)));
                         }
                         progressDialog.dismiss();
                     }

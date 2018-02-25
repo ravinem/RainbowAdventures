@@ -15,16 +15,19 @@ public class AppApplication extends Application {
     public static final int FULL_IMAGE_SIZE = 640;
 
     public static final int AVATAR_SIZE = 150;
+    public static String baseurl = "";
 
     @Override
     public void onCreate() {
         super.onCreate();
 
+        baseurl = getResources().getString(R.string.rainbowadventureswebservice);
+
         FastImageLoader
                 .init(this)
                 .setDefaultImageServiceAdapter(new ImgIXAdapter())
-                .setWriteLogsToLogcat(true)
-                .setDebugIndicator(true);
+                .setWriteLogsToLogcat(false)
+                .setDebugIndicator(false);
 
         IdentityAdapter identityUriEnhancer = new IdentityAdapter();
         FastImageLoader.buildSpec(Specs.IMAGE_AVATAR)

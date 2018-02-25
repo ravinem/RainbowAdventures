@@ -34,4 +34,6 @@
     <string name="Upload">Upload</string>
     <string name="Error">Error</string>
     <string name="Complete">Complete</string>
+
+    <string name="rainbowadventureswebservice">http://rainbowadventures.somee.com</string>
 </resources>

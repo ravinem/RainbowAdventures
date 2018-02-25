@@ -59,7 +59,7 @@
             <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".Register_activity" android:label="Register"></activity>
+        <activity android:name=".Register_activity" android:label="Register" android:noHistory="true"></activity>
     </application>
 
 </manifest>

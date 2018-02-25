@@ -2,63 +2,63 @@ package com.example.mapwithmarker;
 
 
 import android.app.ProgressDialog;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.os.Debug;
-import android.os.Handler;
 import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.v4.content.FileProvider;
-import android.support.v7.app.ActionBar;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
-import android.util.JsonReader;
-import android.util.JsonWriter;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
-import android.widget.ProgressBar;
-import android.widget.RatingBar;
-import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.android.volley.AuthFailureError;
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.VolleyLog;
+import com.android.volley.toolbox.JsonObjectRequest;
+import com.android.volley.toolbox.StringRequest;
+import com.android.volley.toolbox.Volley;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.firebase.FirebaseApp;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.OnProgressListener;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 import com.google.gson.Gson;
-import com.rainbowadventures.utilities.GetCurrentLocationHelper;
 import com.rengwuxian.materialedittext.MaterialEditText;
 
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class CreateRainbowFragment extends BaseActivity implements View.OnClickListener {
 
+    public static final String TAG = "CreateRainbowFragment";
+    private RequestQueue queue;
     public static DecimalFormat df = new DecimalFormat(".####");
     private LatLng _coords;
     private double _lati;
@@ -118,8 +118,15 @@ public class CreateRainbowFragment extends BaseActivity implements View.OnClickL
         progressDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
         progressDialog.show();
         progressDialog.setCancelable(false);
-        new BackgroundProcess().execute(this);
-}
+       // final AsyncTask<CreateRainbowFragment, Integer, Integer> uploadtask =
+                new BackgroundProcess().execute(this);
+        //try {
+          //  uploadtask.wait();
+        //} catch (InterruptedException e) {
+          //  e.printStackTrace();
+        //}
+        //PrepareVolley();
+    }
 
     public void addListenerOnPicsButton()
     {
@@ -293,15 +300,16 @@ public class CreateRainbowFragment extends BaseActivity implements View.OnClickL
             } catch (FileNotFoundException e) {
                 e.printStackTrace();
             }
-            Rainbow r =new Rainbow();
-            r.coords = _coords;
-            r.Name = ((EditText)findViewById(R.id.RainbowName)).getText().toString();
-            r.Description = ((EditText)findViewById(R.id.RainbowDesc)).getText().toString();
-            r.numberPics = currentPhotosTakenNumber;
-            r.photos = photos;
-            Gson g = new Gson();
-            String data = g.toJson(r);
-            File f = new File(getBaseContext().getFilesDir(),filename);
+            //Rainbow r =new Rainbow();
+            //r.latitude = _coords.latitude;
+            //r.longitude = _coords.longitude;
+            //r.rainbow_name = ((EditText)findViewById(R.id.RainbowName)).getText().toString();
+            //r.description = ((EditText)findViewById(R.id.RainbowDesc)).getText().toString();
+           // r.numberPics = currentPhotosTakenNumber;
+            //r.photos = photos;
+            //Gson g = new Gson();
+            //String data = g.toJson(r);
+            /*File f = new File(getBaseContext().getFilesDir(),filename);
 
             FileOutputStream outputStream;
 
@@ -311,12 +319,9 @@ public class CreateRainbowFragment extends BaseActivity implements View.OnClickL
                 outputStream.close();
             } catch (Exception e) {
                 e.printStackTrace();
-            }
-            ClearFilesFromPhone();
-            Intent d = new Intent();
-            d.putExtra("lati",filename);
-            setResult(RESULT_OK,d);
-            finish();
+            }*/
+            //PrepareVolley();
+
         }
 
     private void UploadPicsToFirebase() throws FileNotFoundException {
@@ -377,6 +382,7 @@ public class CreateRainbowFragment extends BaseActivity implements View.OnClickL
                 for (UploadTask t: l) {
                     com.google.android.gms.tasks.Tasks.await(t);
                 }
+                progressDialog.dismiss();
            /* int counter = l.size();
             while(counter > 0)
             {
@@ -418,6 +424,70 @@ public class CreateRainbowFragment extends BaseActivity implements View.OnClickL
             }
     }
 
+    private void PrepareVolley() {
+        final ProgressDialog progressDialog = new ProgressDialog(this);
+        progressDialog.setMessage("Saving");
+        progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+        progressDialog.show();
+        progressDialog.setCancelable(false);
+
+        final JSONObject js = new JSONObject();
+        try {
+            js.put("rainbow_name", ((EditText) findViewById(R.id.RainbowName)).getText().toString());
+            js.put("description", ((EditText) findViewById(R.id.RainbowDesc)).getText().toString());
+            js.put("latitude", _coords.latitude);
+            js.put("longitude", _coords.longitude);
+            js.put("photos", photos);
+            VolleyLog.d(js.toString());
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        final String ur = AppApplication.baseurl + "/insert_rainbow";
+        queue = Volley.newRequestQueue(this);
+        JsonObjectRequest jsonObjReq = new JsonObjectRequest(
+                Request.Method.POST, ur, js,
+                new Response.Listener<JSONObject>() {
+                    @Override
+                    public void onResponse(JSONObject response) {
+                       // Gson gson = new Gson();
+                       // Rainbow object = gson.fromJson(response.toString(), Rainbow.class);
+                        ClearFilesFromPhone();
+                        Intent d = new Intent();
+                        // d.putExtra("lati",filename);
+                        setResult(RESULT_OK,d);
+                        finish();
+                        progressDialog.dismiss();
+                    }
+                }, new Response.ErrorListener() {
+
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                //ClearFilesFromPhone();
+                //Intent d = new Intent();
+                // d.putExtra("lati",filename);
+                //setResult(RESULT_OK,d);
+                //finish();
+                progressDialog.dismiss();
+            }
+        }) {
+
+            /**
+             * Passing some request headers
+             */
+            @Override
+            public Map<String, String> getHeaders() throws AuthFailureError {
+                HashMap<String, String> headers = new HashMap<String, String>();
+                headers.put("Content-Type", "application/json; charset=utf-8");
+                return headers;
+            }
+        };
+        jsonObjReq.setTag(TAG);
+        // Add the request to the RequestQueue.
+        queue.add(jsonObjReq);
+
+    }
+
     @Override
     public void onBackPressed(){
         super.onBackPressed();
@@ -442,6 +512,8 @@ public class CreateRainbowFragment extends BaseActivity implements View.OnClickL
         @Override
         protected void onPostExecute(Integer result) {
             super.onPostExecute(result);
+            progressDialog.dismiss();
+            PrepareVolley();
             //if(progress!=null)
             //  progress.dismiss();
             //progress = null;

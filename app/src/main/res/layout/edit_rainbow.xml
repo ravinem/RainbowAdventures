@@ -68,7 +68,7 @@ tools:context=".Edit_rainbow"
         app:layout_constraintStart_toEndOf="@id/glLeftLine"
         />
 
-    <com.rengwuxian.materialedittext.MaterialEditText
+<com.rengwuxian.materialedittext.MaterialEditText
         android:id="@+id/ERainbowDesc"
         android:layout_width="0dp"
         android:layout_height="0dp"

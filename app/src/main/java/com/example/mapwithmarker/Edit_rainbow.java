@@ -1,10 +1,7 @@
 package com.example.mapwithmarker;
 
-import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.v7.app.ActionBar;
-import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -36,13 +33,13 @@ public class Edit_rainbow extends BaseActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.edit_rainbow);
         _rainbow = (Rainbow)getIntent().getParcelableExtra("rainbow");
-        filename = CreateRainbowFragment.df.format(_rainbow.coords.latitude);
+        filename = CreateRainbowFragment.df.format(_rainbow.latitude);
 
         eRainbowName = (EditText) findViewById(R.id.ERainbowName);
         eRainbowDesc = (EditText) findViewById(R.id.ERainbowDesc);
-        eRainbowName.setText(_rainbow.Name);
-        eRainbowDesc.setText(_rainbow.Description);
-        String s = String.valueOf(_rainbow.numberPics)+ " "+
+        eRainbowName.setText(_rainbow.rainbow_name);
+        eRainbowDesc.setText(_rainbow.description);
+        String s = String.valueOf(_rainbow.getnumberPics())+ " "+
                 getResources().getString(R.string.number_image)
                 + " " + getResources().getString(R.string.maximum_image_allowed_number);
         eNumberPics = (TextView) findViewById(R.id.EtextviewImageNumber);
@@ -75,8 +72,8 @@ public class Edit_rainbow extends BaseActivity {
 
     public void submitClick(View view)
     {
-        _rainbow.Name = ((EditText)findViewById(R.id.ERainbowName)).getText().toString();
-        _rainbow.Description = ((EditText)findViewById(R.id.ERainbowDesc)).getText().toString();
+        _rainbow.rainbow_name = ((EditText)findViewById(R.id.ERainbowName)).getText().toString();
+        _rainbow.description = ((EditText)findViewById(R.id.ERainbowDesc)).getText().toString();
         //r.numberPics = currentPhotosTakenNumber;
         Gson g = new Gson();
         String data = g.toJson(_rainbow);

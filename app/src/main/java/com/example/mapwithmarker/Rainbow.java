@@ -5,7 +5,6 @@ import android.os.Parcel;
 import android.os.Parcelable;
 
 import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.gson.Gson;
 
 import java.io.File;
@@ -19,14 +18,23 @@ import java.util.List;
  */
 
 public class Rainbow implements Parcelable {
-    public LatLng coords;
-    public String Name;
-    public String Description;
-    public int numberPics;
+    public String rainbow_name;
+    public String description;
+    public double latitude;
+    public double longitude;
+    private int numberPics;
     public List<String> photos = new ArrayList<String>();
+    public int id;
+    public int user_id;
 
     public Rainbow()
     {}
+
+    public int getnumberPics()
+    {
+        return photos.size();
+    }
+
     public static final Parcelable.Creator<Rainbow> CREATOR
             = new Parcelable.Creator<Rainbow>() {
         public Rainbow createFromParcel(Parcel in) {
@@ -45,20 +53,26 @@ public class Rainbow implements Parcelable {
 
     @Override
     public void writeToParcel(Parcel parcel, int i) {
-        parcel.writeString(Name);
-        parcel.writeString(Description);
-        parcel.writeInt(numberPics);
-        parcel.writeParcelable(coords,i);
+        parcel.writeString(rainbow_name);
+        parcel.writeString(description);
+       // parcel.writeInt(numberPics);
         parcel.writeList(photos);
+        parcel.writeInt(id);
+        parcel.writeInt(user_id);
+        parcel.writeDouble(latitude);
+        parcel.writeDouble(longitude);
     }
 
     private Rainbow(Parcel in)
     {
-        Name = in.readString();
-        Description = in.readString();
-        numberPics = in.readInt();
-        coords = in.readParcelable(LatLng.class.getClassLoader());
+        rainbow_name = in.readString();
+        description = in.readString();
+       // numberPics = in.readInt();
         in.readList(photos,List.class.getClassLoader());
+        id = in.readInt();
+        user_id = in.readInt();
+        latitude = in.readDouble();
+        longitude = in .readDouble();
     }
 
     public static Rainbow fromFile(Context c, String filename)
