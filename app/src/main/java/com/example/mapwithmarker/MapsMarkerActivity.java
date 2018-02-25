@@ -174,7 +174,7 @@ try {
     _googleMap.setOnInfoWindowClickListener(this);
     _googleMap.setOnMarkerClickListener(this);
     // getFilesForMarkers();
-    String id = PrefSingleton.getInstance().readPreferenceString("userid");
+    String id = Login_activity.UserId;
     PrepareVolleyAllRainbows(AppApplication.baseurl + "/getallRainbowbyUserId?user_id="+id);
     if (location != null) {
         _googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(location, mapsZoom));
@@ -199,58 +199,12 @@ catch(Exception e)
         return false;
     }
 
-    private void getFilesForMarkers() {
-        _googleMap.clear();
-        File[] files = getFilesDir().listFiles();
-        for (File f : files) {
-            Gson g = new Gson();
-            String json;
-            try {
-                FileInputStream fr = new FileInputStream(f);
-                InputStream is = fr;
-                int size = is.available();
-                byte[] buffer = new byte[size];
-                is.read(buffer);
-                is.close();
-                fr.close();
-                json = new String(buffer, "UTF-8");
-                Rainbow r = g.fromJson(json, Rainbow.class);
-                LatLng c = new LatLng(r.latitude,r.longitude);
-                _googleMap.addMarker(new MarkerOptions().position(c)
-                        .title(r.rainbow_name));
-                // _googleMap.moveCamera(CameraUpdateFactory.newLatLng(c));
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
-    }
+    private void prepareNewlyAddedRainbow(Rainbow r) {
 
-    private Rainbow getFilesForMarkers(String filename) {
-        File f = new File(getBaseContext().getFilesDir(), filename);
-        //for(File f : files)
-        //{
-        Gson g = new Gson();
-        String json;
-        try {
-            FileInputStream fr = new FileInputStream(f);
-            InputStream is = fr;
-            int size = is.available();
-            byte[] buffer = new byte[size];
-            is.read(buffer);
-            is.close();
-            fr.close();
-            json = new String(buffer, "UTF-8");
-            Rainbow r = g.fromJson(json, Rainbow.class);
+
             LatLng c = new LatLng(r.latitude,r.longitude);
             _googleMap.addMarker(new MarkerOptions().position(c)
-                    .title(r.rainbow_name));
-            // _googleMap.moveCamera(CameraUpdateFactory.newLatLng(c));
-            return r;
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return null;
-        //}
+                    .title(r.rainbow_name)).setSnippet(String.valueOf(r.id));
     }
 
     @Override
@@ -294,9 +248,9 @@ catch(Exception e)
             return true;
         }
 
-        String Filename = CreateRainbowFragment.df.format(marker.getPosition().latitude);
-        currRainbow = getFilesForMarkers(Filename);
-        marker.setTitle(currRainbow.rainbow_name);
+        //String Filename = CreateRainbowFragment.df.format(marker.getPosition().latitude);
+        //currRainbow = getFilesForMarkers(Filename);
+        //marker.setTitle(currRainbow.rainbow_name);
         marker.showInfoWindow();
         return marker.isInfoWindowShown();
     }
@@ -308,9 +262,9 @@ catch(Exception e)
             //Rainbow r = getFilesForMarkers(Filename);
             Intent intent = new Intent(getBaseContext(), ShowRainbowActivity.class);
             //ShowRainbowActivity f = new ShowRainbowActivity();
-            intent.putExtra("name", currRainbow.rainbow_name);
-            intent.putExtra("desc", currRainbow.description);
-            intent.putExtra("lati", currRainbow.latitude);
+            //intent.putExtra("name", marker.getTitle());
+            intent.putExtra("id", Integer.parseInt(marker.getSnippet()));
+            //intent.putExtra("lati", marker.getPosition().latitude);
             startActivityForResult(intent, 80);
 
         } catch (Exception e) {
@@ -323,8 +277,12 @@ catch(Exception e)
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == 90) {
             if (resultCode == Activity.RESULT_OK) {
-                String fileName = data.getStringExtra("lati");
-                getFilesForMarkers(fileName);
+                Rainbow r = new Rainbow();
+                r.latitude = data.getDoubleExtra("lati",0);
+                r.longitude = data.getDoubleExtra("longi",0);
+                r.rainbow_name = data.getStringExtra("name");
+                r.id = data.getIntExtra("id",0);
+                prepareNewlyAddedRainbow(r);
                 isSearch = true;
             }
             if (resultCode == Activity.RESULT_CANCELED) {
@@ -333,9 +291,9 @@ catch(Exception e)
         }
         if (requestCode == 80) {
             if (resultCode == Activity.RESULT_OK) {
-                //getFilesForMarkers();
-                String id = PrefSingleton.getInstance().readPreferenceString("userId");
-                PrepareVolleyAllRainbows(AppApplication.baseurl + "getallRainbowbyUserId?user_id="+id);
+                data.getIntExtra("id",0);
+
+                PrepareVolleyAllRainbows(AppApplication.baseurl + "/getallRainbowbyUserId?user_id="+Login_activity.UserId);
             }
         }
     }

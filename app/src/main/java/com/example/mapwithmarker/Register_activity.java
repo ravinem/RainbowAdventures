@@ -98,10 +98,10 @@ public class Register_activity extends AppCompatActivity {
         progressDialog.setCancelable(false);
 
 
-        AppApplication.baseurl += "/registeruser?username="+u+"&password="+p+"&email_id="+e;
+        String ur = AppApplication.baseurl + "/registeruser?username="+u+"&password="+p+"&email_id="+e;
         queue = Volley.newRequestQueue(this);
         // Request a string response from the provided URL.
-        StringRequest stringRequest = new StringRequest(Request.Method.GET, AppApplication.baseurl,
+        StringRequest stringRequest = new StringRequest(Request.Method.GET, ur,
                 new Response.Listener<String>() {
                     @Override
                     public void onResponse(String response) {

@@ -29,7 +29,7 @@ public class ImageGallery extends BaseActivity {
         RecyclerView recyclerView = (RecyclerView) findViewById(R.id.rv_images);
         recyclerView.setHasFixedSize(true);
         recyclerView.setLayoutManager(layoutManager);
-        String foldername = getIntent().getStringExtra("filename");
+        //String foldername = getIntent().getStringExtra("filename");
         ArrayList<String> filenames = getIntent().getStringArrayListExtra("photoArray");
         ImageGalleryAdapter adapter = new ImageGalleryAdapter(this, RainbowPhoto.getSpacePhotos(filenames,getBaseContext()));
         recyclerView.setAdapter(adapter);

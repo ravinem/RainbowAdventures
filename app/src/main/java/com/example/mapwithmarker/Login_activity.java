@@ -28,7 +28,8 @@ public class Login_activity extends AppCompatActivity {
 
     public static final String TAG = "Login_activity";
     private RequestQueue queue;
-
+    public static String UserId=null;
+    public static int userid = 0;
     public Login_activity() {
     }
 
@@ -44,7 +45,8 @@ public class Login_activity extends AppCompatActivity {
         }
         PrefSingleton.getInstance().Initialize(getApplicationContext());
 
-        String UserId = PrefSingleton.getInstance().readPreferenceString("userid");
+        UserId = PrefSingleton.getInstance().readPreferenceString("userid");
+        userid = Integer.parseInt(UserId);
         if(!UserId.isEmpty())
         {
             GoMain();

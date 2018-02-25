@@ -22,12 +22,15 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.android.volley.AuthFailureError;
+import com.android.volley.NetworkResponse;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.VolleyLog;
+import com.android.volley.toolbox.HttpHeaderParser;
 import com.android.volley.toolbox.JsonObjectRequest;
+import com.android.volley.toolbox.JsonRequest;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.google.android.gms.maps.model.LatLng;
@@ -118,8 +121,8 @@ public class CreateRainbowFragment extends BaseActivity implements View.OnClickL
         progressDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
         progressDialog.show();
         progressDialog.setCancelable(false);
-       // final AsyncTask<CreateRainbowFragment, Integer, Integer> uploadtask =
-                new BackgroundProcess().execute(this);
+        //final AsyncTask<CreateRainbowFragment, Integer, Integer> uploadtask =
+         new BackgroundProcess().execute(this);
         //try {
           //  uploadtask.wait();
         //} catch (InterruptedException e) {
@@ -435,42 +438,44 @@ public class CreateRainbowFragment extends BaseActivity implements View.OnClickL
         try {
             js.put("rainbow_name", ((EditText) findViewById(R.id.RainbowName)).getText().toString());
             js.put("description", ((EditText) findViewById(R.id.RainbowDesc)).getText().toString());
-            js.put("latitude", _coords.latitude);
-            js.put("longitude", _coords.longitude);
+            js.put("latitude", String.valueOf(_coords.latitude));
+            js.put("longitude", String.valueOf(_coords.longitude));
             js.put("photos", photos);
+            js.put("user_id",Login_activity.userid);
             VolleyLog.d(js.toString());
         } catch (JSONException e) {
-            e.printStackTrace();
+            Log.e(TAG,e.getMessage());
         }
 
         final String ur = AppApplication.baseurl + "/insert_rainbow";
         queue = Volley.newRequestQueue(this);
-        JsonObjectRequest jsonObjReq = new JsonObjectRequest(
-                Request.Method.POST, ur, js,
-                new Response.Listener<JSONObject>() {
+
+        JsonRequest<String> jsonObjReq = new JsonRequest<String>(
+                Request.Method.POST, ur, js.toString(),
+                new Response.Listener<String>() {
                     @Override
-                    public void onResponse(JSONObject response) {
-                       // Gson gson = new Gson();
-                       // Rainbow object = gson.fromJson(response.toString(), Rainbow.class);
+                    public void onResponse(String response) {
+                        progressDialog.dismiss();
                         ClearFilesFromPhone();
                         Intent d = new Intent();
-                        // d.putExtra("lati",filename);
+                        d.putExtra("name",((EditText) findViewById(R.id.RainbowName)).getText().toString());
+                        d.putExtra("lati",_coords.latitude);
+                        d.putExtra("longi",_coords.longitude);
+                        d.putExtra("id",Integer.parseInt(response));
                         setResult(RESULT_OK,d);
                         finish();
-                        progressDialog.dismiss();
                     }
                 }, new Response.ErrorListener() {
 
             @Override
             public void onErrorResponse(VolleyError error) {
+                Log.e(TAG,error.getMessage());
                 //ClearFilesFromPhone();
-                //Intent d = new Intent();
-                // d.putExtra("lati",filename);
-                //setResult(RESULT_OK,d);
-                //finish();
+
                 progressDialog.dismiss();
             }
-        }) {
+        }
+        ) {
 
             /**
              * Passing some request headers
@@ -480,6 +485,16 @@ public class CreateRainbowFragment extends BaseActivity implements View.OnClickL
                 HashMap<String, String> headers = new HashMap<String, String>();
                 headers.put("Content-Type", "application/json; charset=utf-8");
                 return headers;
+            }
+            @Override
+            protected Response<String> parseNetworkResponse(NetworkResponse response) {
+                String responseString = "";
+                if (response != null) {
+                    responseString = String.valueOf(response.statusCode);
+                    // can get more details such as response.headers
+                }
+
+                return Response.success(responseString, HttpHeaderParser.parseCacheHeaders(response));
             }
         };
         jsonObjReq.setTag(TAG);

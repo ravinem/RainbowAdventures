@@ -75,29 +75,4 @@ public class Rainbow implements Parcelable {
         longitude = in .readDouble();
     }
 
-    public static Rainbow fromFile(Context c, String filename)
-    {
-        File f = new File(c.getFilesDir(),filename);
-        //for(File f : files)
-        //{
-        Gson g = new Gson();
-        String json;
-        try {
-            FileInputStream fr = new FileInputStream(f);
-            InputStream is = fr;
-            int size = is.available();
-            byte[] buffer = new byte[size];
-            is.read(buffer);
-            is.close();
-            fr.close();
-            json = new String(buffer,"UTF-8");
-            Rainbow r = g.fromJson(json,Rainbow.class);
-            return r;
-        }
-        catch(Exception e)
-        {
-            e.printStackTrace();
-        }
-        return null;
-    }
 }

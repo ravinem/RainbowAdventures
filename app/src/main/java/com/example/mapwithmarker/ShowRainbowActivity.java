@@ -1,16 +1,26 @@
 package com.example.mapwithmarker;
 
 import android.app.Activity;
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AlertDialog;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
+
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.StringRequest;
+import com.android.volley.toolbox.Volley;
+import com.google.gson.Gson;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -22,7 +32,8 @@ import java.util.ArrayList;
 
 public class ShowRainbowActivity extends BaseActivity {
 
-    private String filename;
+    public static final String TAG = "Register_activity";
+    private RequestQueue queue;
     private Rainbow _rainbow;
     public ShowRainbowActivity() {
         // Required empty public constructor12
@@ -34,12 +45,9 @@ public class ShowRainbowActivity extends BaseActivity {
         try {
             // Retrieve the content view that renders the map.
             setContentView(R.layout.markerinfowindowlayout);
-            String name = getIntent().getStringExtra("name");
-            String desc = getIntent().getStringExtra("desc");
-            Double lati = getIntent().getDoubleExtra("lati",0);
-            filename = CreateRainbowFragment.df.format(lati);
-            _rainbow = Rainbow.fromFile(this,filename);
-            FillDataFromRainbow();
+            int id = getIntent().getIntExtra("id",0);
+            GetRainbowFromId(id);
+
         }catch(Exception e)
         {
             e.printStackTrace();
@@ -70,7 +78,7 @@ menu_inflator.inflate(R.menu.options_rainbowdetail,menu);
             //File f = new File(getBaseContext().getFilesDir(),filename+"D");
             if(_rainbow.photos!=null && _rainbow.photos.size()>0) {
                 Intent intent = new Intent(getBaseContext(), ImageGallery.class);
-                intent.putExtra("filename", filename);
+                //intent.putExtra("filename", filename);
                 intent.putStringArrayListExtra("photoArray", (ArrayList<String>)_rainbow.photos);
                 startActivity(intent);
             }
@@ -116,25 +124,8 @@ menu_inflator.inflate(R.menu.options_rainbowdetail,menu);
                 .setPositiveButton(R.string.alert_dialog_yes, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
-                        //dialogInterface.dismiss();
                         try {
-                            File f = new File(_context.getFilesDir(),filename);
-                            if(f!=null && f.exists())
-                            {
-                                f.delete();
-                            }
-                            File fd = new File(_context.getFilesDir(),filename+"D");
-                            if(fd!=null && fd.exists() && fd.isDirectory())
-                            {
-                                String[] children = fd.list();
-                                for (int ii = 0; ii < children.length; ii++)
-                                {
-                                    new File(fd, children[ii]).delete();
-                                }
-                                fd.delete();
-                            }
-                            setResult(RESULT_OK,null);
-                            finish();
+                            DeleteRainbow(_rainbow.id);
                         }
                         catch(Exception e)
                         {
@@ -153,4 +144,74 @@ menu_inflator.inflate(R.menu.options_rainbowdetail,menu);
         ad.show();
     }
 
+    private void GetRainbowFromId(int id) {
+        final ProgressDialog progressDialog = new ProgressDialog(this);
+        progressDialog.setMessage("Fetching");
+        progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+        progressDialog.show();
+        progressDialog.setCancelable(false);
+
+
+        String ur = AppApplication.baseurl + "/Single_Rainbow_Details?rainbow_id="+id;
+        queue = Volley.newRequestQueue(this);
+        // Request a string response from the provided URL.
+        StringRequest stringRequest = new StringRequest(Request.Method.GET, ur,
+                new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String response) {
+                        if(!response.isEmpty())
+                        {
+                            Gson g = new Gson();
+                            _rainbow = g.fromJson(response, Rainbow.class);
+                            FillDataFromRainbow();
+                        }
+                        progressDialog.dismiss();
+                    }
+                }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                progressDialog.dismiss();
+            }
+        });
+        stringRequest.setTag(TAG);
+        // Add the request to the RequestQueue.
+        queue.add(stringRequest);
+    }
+
+    private void DeleteRainbow(int id) {
+        final ProgressDialog progressDialog = new ProgressDialog(this);
+        progressDialog.setMessage("Deleting");
+        progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+        progressDialog.show();
+        progressDialog.setCancelable(false);
+
+
+        String ur = AppApplication.baseurl + "/delete_rainbow?id="+id;
+        queue = Volley.newRequestQueue(this);
+        // Request a string response from the provided URL.
+        StringRequest stringRequest = new StringRequest(Request.Method.GET, ur,
+                new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String response) {
+                        if(!response.isEmpty())
+                        {
+                            progressDialog.dismiss();
+                            Intent d = new Intent();
+                            d.putExtra("id",_rainbow.id);
+                            setResult(RESULT_OK,d);
+                            finish();
+                        }
+
+                    }
+                }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                Log.e(TAG,error.getMessage());
+                progressDialog.dismiss();
+            }
+        });
+        stringRequest.setTag(TAG);
+        // Add the request to the RequestQueue.
+        queue.add(stringRequest);
+    }
 }
