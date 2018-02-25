@@ -418,6 +418,7 @@ catch(Exception e)
         {
             return;
         }
+
         final ProgressDialog progressDialog = new ProgressDialog(this);
         progressDialog.setMessage("Searching");
         progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
@@ -432,6 +433,7 @@ catch(Exception e)
                 new Response.Listener<String>() {
                     @Override
                     public void onResponse(String response) {
+                        _googleMap.clear();
                         Gson g= new Gson();
                         Type listType = new TypeToken<ArrayList<Rainbow>>(){}.getType();
                         List<Rainbow> rs = g.fromJson(response,listType);

@@ -43,6 +43,7 @@ import com.google.firebase.storage.UploadTask;
 import com.google.gson.Gson;
 import com.rengwuxian.materialedittext.MaterialEditText;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -303,27 +304,6 @@ public class CreateRainbowFragment extends BaseActivity implements View.OnClickL
             } catch (FileNotFoundException e) {
                 e.printStackTrace();
             }
-            //Rainbow r =new Rainbow();
-            //r.latitude = _coords.latitude;
-            //r.longitude = _coords.longitude;
-            //r.rainbow_name = ((EditText)findViewById(R.id.RainbowName)).getText().toString();
-            //r.description = ((EditText)findViewById(R.id.RainbowDesc)).getText().toString();
-           // r.numberPics = currentPhotosTakenNumber;
-            //r.photos = photos;
-            //Gson g = new Gson();
-            //String data = g.toJson(r);
-            /*File f = new File(getBaseContext().getFilesDir(),filename);
-
-            FileOutputStream outputStream;
-
-            try {
-                outputStream = new FileOutputStream(f);
-                outputStream.write(data.getBytes());
-                outputStream.close();
-            } catch (Exception e) {
-                e.printStackTrace();
-            }*/
-            //PrepareVolley();
 
         }
 
@@ -433,16 +413,25 @@ public class CreateRainbowFragment extends BaseActivity implements View.OnClickL
         progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
         progressDialog.show();
         progressDialog.setCancelable(false);
-
+        String payload = "";
         final JSONObject js = new JSONObject();
         try {
             js.put("rainbow_name", ((EditText) findViewById(R.id.RainbowName)).getText().toString());
             js.put("description", ((EditText) findViewById(R.id.RainbowDesc)).getText().toString());
             js.put("latitude", String.valueOf(_coords.latitude));
             js.put("longitude", String.valueOf(_coords.longitude));
-            js.put("photos", photos);
+            if(photos!=null && photos.size()>0) {
+                JSONArray p = new JSONArray();
+                for (String se:photos
+                     ) {
+                    p.put(se);
+                }
+
+                js.put("photos", p);
+            }
             js.put("user_id",Login_activity.userid);
-            VolleyLog.d(js.toString());
+            payload = js.toString();
+            Log.d(TAG,payload);
         } catch (JSONException e) {
             Log.e(TAG,e.getMessage());
         }
@@ -451,7 +440,7 @@ public class CreateRainbowFragment extends BaseActivity implements View.OnClickL
         queue = Volley.newRequestQueue(this);
 
         JsonRequest<String> jsonObjReq = new JsonRequest<String>(
-                Request.Method.POST, ur, js.toString(),
+                Request.Method.POST, ur, payload,
                 new Response.Listener<String>() {
                     @Override
                     public void onResponse(String response) {
