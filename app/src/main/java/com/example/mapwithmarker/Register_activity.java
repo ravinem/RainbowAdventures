@@ -16,6 +16,7 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.google.android.gms.maps.CameraUpdateFactory;
+import com.rainbowadventures.utilities.MySingleton;
 
 import java.util.Locale;
 
@@ -99,7 +100,8 @@ public class Register_activity extends AppCompatActivity {
 
 
         String ur = AppApplication.baseurl + "/registeruser?username="+u+"&password="+p+"&email_id="+e;
-        queue = Volley.newRequestQueue(this);
+        queue = MySingleton.getInstance(this.getApplicationContext()).
+                getRequestQueue();
         // Request a string response from the provided URL.
         StringRequest stringRequest = new StringRequest(Request.Method.GET, ur,
                 new Response.Listener<String>() {
@@ -121,6 +123,6 @@ public class Register_activity extends AppCompatActivity {
         });
         stringRequest.setTag(TAG);
         // Add the request to the RequestQueue.
-        queue.add(stringRequest);
+        MySingleton.getInstance(this).addToRequestQueue(stringRequest);
     }
 }

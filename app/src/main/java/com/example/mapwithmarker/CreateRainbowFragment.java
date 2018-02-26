@@ -41,6 +41,7 @@ import com.google.firebase.storage.OnProgressListener;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 import com.google.gson.Gson;
+import com.rainbowadventures.utilities.MySingleton;
 import com.rengwuxian.materialedittext.MaterialEditText;
 
 import org.json.JSONArray;
@@ -122,14 +123,7 @@ public class CreateRainbowFragment extends BaseActivity implements View.OnClickL
         progressDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
         progressDialog.show();
         progressDialog.setCancelable(false);
-        //final AsyncTask<CreateRainbowFragment, Integer, Integer> uploadtask =
-         new BackgroundProcess().execute(this);
-        //try {
-          //  uploadtask.wait();
-        //} catch (InterruptedException e) {
-          //  e.printStackTrace();
-        //}
-        //PrepareVolley();
+        new BackgroundProcess().execute(this);
     }
 
     public void addListenerOnPicsButton()
@@ -437,7 +431,8 @@ public class CreateRainbowFragment extends BaseActivity implements View.OnClickL
         }
 
         final String ur = AppApplication.baseurl + "/insert_rainbow";
-        queue = Volley.newRequestQueue(this);
+        queue = MySingleton.getInstance(this.getApplicationContext()).
+                getRequestQueue();
 
         JsonRequest<String> jsonObjReq = new JsonRequest<String>(
                 Request.Method.POST, ur, payload,
@@ -488,7 +483,7 @@ public class CreateRainbowFragment extends BaseActivity implements View.OnClickL
         };
         jsonObjReq.setTag(TAG);
         // Add the request to the RequestQueue.
-        queue.add(jsonObjReq);
+        MySingleton.getInstance(this).addToRequestQueue(jsonObjReq);
 
     }
 

@@ -48,6 +48,7 @@ import com.google.android.gms.tasks.Task;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.rainbowadventures.utilities.GetCurrentLocationHelper;
+import com.rainbowadventures.utilities.MySingleton;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -387,7 +388,8 @@ catch(Exception e)
         String searchKey = getResources().getString(R.string.googlePlaceKeySearch);
         query = query.replace(' ','+');
         String searchUrl = "https://maps.googleapis.com/maps/api/geocode/json?address="+query+"&key="+searchKey;
-        queue = Volley.newRequestQueue(this);
+        queue = MySingleton.getInstance(this.getApplicationContext()).
+                getRequestQueue();
         // Request a string response from the provided URL.
         StringRequest stringRequest = new StringRequest(Request.Method.GET, searchUrl,
                 new Response.Listener<String>() {
@@ -409,7 +411,7 @@ catch(Exception e)
         });
         stringRequest.setTag(TAG);
         // Add the request to the RequestQueue.
-        queue.add(stringRequest);
+        MySingleton.getInstance(this).addToRequestQueue(stringRequest);
     }
 
     private void PrepareVolleyAllRainbows(final String query)
@@ -425,7 +427,8 @@ catch(Exception e)
         progressDialog.show();
         progressDialog.setCancelable(false);
 
-        queue = Volley.newRequestQueue(this);
+        queue =MySingleton.getInstance(this.getApplicationContext()).
+                getRequestQueue();
 
         // Request a string response from the provided URL.
         StringRequest stringRequest = new StringRequest(Request.Method.GET,
@@ -452,6 +455,6 @@ catch(Exception e)
         });
         stringRequest.setTag(TAG);
         // Add the request to the RequestQueue.
-        queue.add(stringRequest);
+        MySingleton.getInstance(this).addToRequestQueue(stringRequest);
     }
 }

@@ -21,6 +21,7 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.google.gson.Gson;
+import com.rainbowadventures.utilities.MySingleton;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -153,7 +154,8 @@ menu_inflator.inflate(R.menu.options_rainbowdetail,menu);
 
 
         String ur = AppApplication.baseurl + "/Single_Rainbow_Details?rainbow_id="+id;
-        queue = Volley.newRequestQueue(this);
+        queue = MySingleton.getInstance(this.getApplicationContext()).
+                getRequestQueue();
         // Request a string response from the provided URL.
         StringRequest stringRequest = new StringRequest(Request.Method.GET, ur,
                 new Response.Listener<String>() {
@@ -175,7 +177,7 @@ menu_inflator.inflate(R.menu.options_rainbowdetail,menu);
         });
         stringRequest.setTag(TAG);
         // Add the request to the RequestQueue.
-        queue.add(stringRequest);
+        MySingleton.getInstance(this).addToRequestQueue(stringRequest);
     }
 
     private void DeleteRainbow(int id) {
@@ -187,7 +189,8 @@ menu_inflator.inflate(R.menu.options_rainbowdetail,menu);
 
 
         String ur = AppApplication.baseurl + "/delete_rainbow?id="+id;
-        queue = Volley.newRequestQueue(this);
+        queue = MySingleton.getInstance(this.getApplicationContext()).
+                getRequestQueue();
         // Request a string response from the provided URL.
         StringRequest stringRequest = new StringRequest(Request.Method.GET, ur,
                 new Response.Listener<String>() {
@@ -212,6 +215,6 @@ menu_inflator.inflate(R.menu.options_rainbowdetail,menu);
         });
         stringRequest.setTag(TAG);
         // Add the request to the RequestQueue.
-        queue.add(stringRequest);
+        MySingleton.getInstance(this).addToRequestQueue(stringRequest);
     }
 }

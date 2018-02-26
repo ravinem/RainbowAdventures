@@ -16,6 +16,7 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
+import com.rainbowadventures.utilities.MySingleton;
 import com.rengwuxian.materialedittext.MaterialEditText;
 import com.theartofdev.fastimageloader.FastImageLoader;
 
@@ -91,7 +92,8 @@ public class Login_activity extends AppCompatActivity {
 
         String baseurl = getResources().getString(R.string.rainbowadventureswebservice);
         baseurl += "/loginuser?username="+u+"&user_password="+p;
-        queue = Volley.newRequestQueue(this);
+        queue = MySingleton.getInstance(this.getApplicationContext()).
+            getRequestQueue();
         // Request a string response from the provided URL.
         StringRequest stringRequest = new StringRequest(Request.Method.GET, baseurl,
                 new Response.Listener<String>() {
@@ -122,7 +124,7 @@ public class Login_activity extends AppCompatActivity {
         });
         stringRequest.setTag(TAG);
         // Add the request to the RequestQueue.
-        queue.add(stringRequest);
+        MySingleton.getInstance(this).addToRequestQueue(stringRequest);
     }
 
     public void RegisterClick(View view) {
