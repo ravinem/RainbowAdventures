@@ -6,7 +6,9 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.AlertDialog;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -46,8 +48,12 @@ public class ShowRainbowActivity extends BaseActivity {
         try {
             // Retrieve the content view that renders the map.
             setContentView(R.layout.markerinfowindowlayout);
+            Toolbar toolbar = findViewById(R.id.toolbarShowRainbow);
+            setSupportActionBar(toolbar);
+            ActionBar actionbar = getSupportActionBar();
             int id = getIntent().getIntExtra("id",0);
             GetRainbowFromId(id);
+            actionbar.setTitle("");
 
         }catch(Exception e)
         {

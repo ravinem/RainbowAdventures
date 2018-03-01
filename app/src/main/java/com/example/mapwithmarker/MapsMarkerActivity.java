@@ -79,7 +79,7 @@ public class MapsMarkerActivity extends BaseActivity
     private final int mapsZoom = 15;
     private FusedLocationProviderClient mFusedLocationClient;
     private RequestQueue queue;
-    private boolean isSearch = false;
+
     private GetCurrentLocationHelper currentlocationhelperObject = new GetCurrentLocationHelper(this, mFusedLocationClient);
     private DrawerLayout drawerLayout = null;
 
@@ -107,7 +107,7 @@ public class MapsMarkerActivity extends BaseActivity
 
         Intent intent = getIntent();
         if (Intent.ACTION_SEARCH.equals(intent.getAction())) {
-            isSearch = true;
+
             String query = intent.getStringExtra(SearchManager.QUERY);
             try {
                 if (current == null) {
@@ -229,7 +229,7 @@ catch(Exception e)
 
             LatLng c = new LatLng(r.latitude,r.longitude);
             _googleMap.addMarker(new MarkerOptions().position(c)
-                    .title(r.rainbow_name)).setSnippet(String.valueOf(r.id));
+                    .title(r.rainbow_name)).setTag(r.id);
     }
 
     @Override
@@ -288,7 +288,7 @@ catch(Exception e)
             Intent intent = new Intent(getBaseContext(), ShowRainbowActivity.class);
             //ShowRainbowActivity f = new ShowRainbowActivity();
             //intent.putExtra("name", marker.getTitle());
-            intent.putExtra("id", Integer.parseInt(marker.getSnippet()));
+            intent.putExtra("id", (int)marker.getTag());
             //intent.putExtra("lati", marker.getPosition().latitude);
             startActivityForResult(intent, 80);
 
@@ -308,7 +308,7 @@ catch(Exception e)
                 r.rainbow_name = data.getStringExtra("name");
                 r.id = data.getIntExtra("id",0);
                 prepareNewlyAddedRainbow(r);
-                isSearch = true;
+
             }
             if (resultCode == Activity.RESULT_CANCELED) {
                 //Write your code if there's no result
@@ -467,7 +467,7 @@ catch(Exception e)
                         for (Rainbow r :rs) {
                             LatLng c = new LatLng(r.latitude,r.longitude);
                             _googleMap.addMarker(new MarkerOptions().position(c)
-                                  .title(r.rainbow_name).snippet(String.valueOf(r.id)));
+                                  .title(r.rainbow_name)).setTag(r.id);
                         }
                         progressDialog.dismiss();
                     }

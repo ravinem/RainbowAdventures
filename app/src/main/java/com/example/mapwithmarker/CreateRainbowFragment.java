@@ -41,6 +41,7 @@ import com.google.firebase.storage.OnProgressListener;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 import com.google.gson.Gson;
+import com.google.gson.JsonObject;
 import com.rainbowadventures.utilities.MySingleton;
 import com.rengwuxian.materialedittext.MaterialEditText;
 
@@ -52,6 +53,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -425,7 +427,7 @@ public class CreateRainbowFragment extends BaseActivity implements View.OnClickL
             }
             js.put("user_id",Login_activity.userid);
             payload = js.toString();
-            Log.d(TAG,payload);
+
         } catch (JSONException e) {
             Log.e(TAG,e.getMessage());
         }
@@ -472,13 +474,16 @@ public class CreateRainbowFragment extends BaseActivity implements View.OnClickL
             }
             @Override
             protected Response<String> parseNetworkResponse(NetworkResponse response) {
-                String responseString = "";
-                if (response != null) {
-                    responseString = String.valueOf(response.statusCode);
-                    // can get more details such as response.headers
+                String json = null;
+                try {
+                    json = new String(response.data,
+                            HttpHeaderParser.parseCharset(response.headers));
+                } catch (UnsupportedEncodingException e) {
+                    e.printStackTrace();
                 }
+                return Response.success(json,
+                        HttpHeaderParser.parseCacheHeaders(response));
 
-                return Response.success(responseString, HttpHeaderParser.parseCacheHeaders(response));
             }
         };
         jsonObjReq.setTag(TAG);

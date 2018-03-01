@@ -7,6 +7,13 @@ android:layout_height="match_parent"
 android:orientation="horizontal"
 tools:context=".Edit_rainbow"
     >
+    <android.support.v7.widget.Toolbar
+        android:id="@+id/toolbarEditRainbow"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        android:background="@color/colorPrimary"
+        android:theme="@style/ThemeOverlay.AppCompat.ActionBar"
+        />
     <android.support.constraint.Guideline
         android:id="@+id/glLeftLine"
         android:layout_width="match_parent"
