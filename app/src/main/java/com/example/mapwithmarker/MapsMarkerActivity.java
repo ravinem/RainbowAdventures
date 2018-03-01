@@ -15,11 +15,17 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.provider.Settings;
 import android.support.annotation.NonNull;
+import android.support.design.widget.NavigationView;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
+import android.support.v4.view.GravityCompat;
+import android.support.v4.widget.DrawerLayout;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.AlertDialog;
+import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.SearchView;
 
@@ -58,13 +64,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
-/**
- * An activity that displays a Google map with a marker (pin) to indicate a particular location.
- */
 public class MapsMarkerActivity extends BaseActivity
         implements OnMapReadyCallback, GoogleMap.OnMapClickListener, GoogleMap.OnMarkerClickListener
         , GoogleMap.OnInfoWindowClickListener, AddressListDialogFragement.NoticeDialogListener
-        , GoogleMap.OnMyLocationButtonClickListener, GoogleMap.OnMyLocationClickListener {
+        , GoogleMap.OnMyLocationButtonClickListener, GoogleMap.OnMyLocationClickListener
+        , NavigationView.OnNavigationItemSelectedListener {
 
     public static final String TAG = "MapsMarkerActivity";
     private GoogleMap _googleMap;
@@ -77,6 +81,7 @@ public class MapsMarkerActivity extends BaseActivity
     private RequestQueue queue;
     private boolean isSearch = false;
     private GetCurrentLocationHelper currentlocationhelperObject = new GetCurrentLocationHelper(this, mFusedLocationClient);
+    private DrawerLayout drawerLayout = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -85,11 +90,20 @@ public class MapsMarkerActivity extends BaseActivity
         // Retrieve the content view that renders the map.
         setContentView(R.layout.activity_maps);
         mFusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
+        drawerLayout = (DrawerLayout)findViewById(R.id.drawer_layout);
+        NavigationView navigationView = findViewById(R.id.nav_view);
+        navigationView.setNavigationItemSelectedListener(this);
         // Get the SupportMapFragment and request notification
         // when the map is ready to be used.
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
+
+        Toolbar toolbar = findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+        ActionBar actionbar = getSupportActionBar();
+        actionbar.setDisplayHomeAsUpEnabled(true);
+        actionbar.setHomeAsUpIndicator(R.drawable.ic_menu);
 
         Intent intent = getIntent();
         if (Intent.ACTION_SEARCH.equals(intent.getAction())) {
@@ -137,6 +151,16 @@ public class MapsMarkerActivity extends BaseActivity
                 searchManager.getSearchableInfo(getComponentName()));
 
         return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case android.R.id.home:
+                drawerLayout.openDrawer(GravityCompat.START);
+                return true;
+        }
+        return super.onOptionsItemSelected(item);
     }
 
     public void onDialogItemClick(DialogFragment dialog) {
@@ -456,5 +480,26 @@ catch(Exception e)
         stringRequest.setTag(TAG);
         // Add the request to the RequestQueue.
         MySingleton.getInstance(this).addToRequestQueue(stringRequest);
+    }
+
+    @Override
+    public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+        switch (item.getItemId()) {
+            case android.R.id.home:
+                drawerLayout.openDrawer(GravityCompat.START);
+                return true;
+            case R.id.logout:
+                PrefSingleton.getInstance().writePreference("userid","");
+                Intent i = new Intent(this,Login_activity.class);
+                i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                startActivity(i);
+                return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public void onPointerCaptureChanged(boolean hasCapture) {
+
     }
 }

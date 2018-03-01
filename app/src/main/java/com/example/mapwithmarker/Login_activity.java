@@ -47,9 +47,10 @@ public class Login_activity extends AppCompatActivity {
         PrefSingleton.getInstance().Initialize(getApplicationContext());
 
         UserId = PrefSingleton.getInstance().readPreferenceString("userid");
-        userid = Integer.parseInt(UserId);
+
         if(!UserId.isEmpty())
         {
+            userid = Integer.parseInt(UserId);
             GoMain();
         }
     }
@@ -108,6 +109,8 @@ public class Login_activity extends AppCompatActivity {
                             {}
                             if(id > 0 ) {
                                 PrefSingleton.getInstance().writePreference("userid", response);
+                                userid = Integer.parseInt(response);
+                                UserId = response;
                                 GoMain();
                             }
                             else

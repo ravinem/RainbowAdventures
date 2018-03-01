@@ -110,6 +110,8 @@ public class Register_activity extends AppCompatActivity {
                         if(!response.isEmpty())
                         {
                             PrefSingleton.getInstance().writePreference("userid", response);
+                            Login_activity.userid = Integer.parseInt(response);
+                            Login_activity.UserId = response;
                             Intent i = new Intent(getBaseContext(),MapsMarkerActivity.class);
                             startActivity(i);
                         }
