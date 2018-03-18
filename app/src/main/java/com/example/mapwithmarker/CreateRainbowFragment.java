@@ -5,6 +5,8 @@ import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.location.Address;
+import android.location.Geocoder;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -426,6 +428,12 @@ public class CreateRainbowFragment extends BaseActivity implements View.OnClickL
                 js.put("photos", p);
             }
             js.put("user_id",Login_activity.userid);
+            Address a = getLocationFromCoords(_coords.latitude,_coords.longitude);
+            if(a!=null)
+            {
+                js.put("state",a.getAdminArea());
+                js.put("country",a.getCountryName());
+            }
             payload = js.toString();
 
         } catch (JSONException e) {
@@ -455,7 +463,7 @@ public class CreateRainbowFragment extends BaseActivity implements View.OnClickL
 
             @Override
             public void onErrorResponse(VolleyError error) {
-                Log.e(TAG,error.getMessage());
+               // Log.e(TAG,error.getMessage());
                 //ClearFilesFromPhone();
 
                 progressDialog.dismiss();
@@ -490,6 +498,21 @@ public class CreateRainbowFragment extends BaseActivity implements View.OnClickL
         // Add the request to the RequestQueue.
         MySingleton.getInstance(this).addToRequestQueue(jsonObjReq);
 
+    }
+
+    private Address getLocationFromCoords(double lati,double longi)
+    {
+        Geocoder geocoder = new Geocoder(getBaseContext(),getResources().getConfiguration().locale);
+        try {
+            List<Address> addrs =  geocoder.getFromLocation(lati,longi,1);
+            if(addrs !=null && addrs.size()>0)
+            {
+                return addrs.get(0);
+            }
+        } catch (IOException e) {
+            Log.d(TAG,e.getMessage());
+        }
+        return null;
     }
 
     @Override

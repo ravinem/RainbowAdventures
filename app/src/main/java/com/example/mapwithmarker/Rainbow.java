@@ -26,6 +26,8 @@ public class Rainbow implements Parcelable {
     public List<String> photos = new ArrayList<String>();
     public int id;
     public int user_id;
+    public String state;
+    public String country;
 
     public Rainbow()
     {}
@@ -61,6 +63,8 @@ public class Rainbow implements Parcelable {
         parcel.writeInt(user_id);
         parcel.writeDouble(latitude);
         parcel.writeDouble(longitude);
+        parcel.writeString(state);
+        parcel.writeString(country);
     }
 
     private Rainbow(Parcel in)
@@ -73,6 +77,8 @@ public class Rainbow implements Parcelable {
         user_id = in.readInt();
         latitude = in.readDouble();
         longitude = in .readDouble();
+        state = in.readString();
+        country = in .readString();
     }
 
 }
