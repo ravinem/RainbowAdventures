@@ -82,6 +82,8 @@ public class MapsMarkerActivity extends BaseActivity
 
     private GetCurrentLocationHelper currentlocationhelperObject = new GetCurrentLocationHelper(this, mFusedLocationClient);
     private DrawerLayout drawerLayout = null;
+    private static int SEARCH_USER = 1234;
+    private static String currentUsername = "";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -321,6 +323,17 @@ catch(Exception e)
                 PrepareVolleyAllRainbows(AppApplication.baseurl + "/getallRainbowbyUserId?user_id="+Login_activity.UserId);
             }
         }
+        if(requestCode == SEARCH_USER)
+        {
+            if(resultCode==Activity.RESULT_OK) {
+                int __id = data.getIntExtra("_userid",0);
+
+                if(__id!=0) {
+                    currentUsername = data.getStringExtra("_username");
+                    PrepareVolleyAllRainbows(AppApplication.baseurl + "/getallRainbowbyUserId?user_id=" + __id);
+                }
+            }
+        }
     }
 
     @Override
@@ -460,6 +473,15 @@ catch(Exception e)
                 new Response.Listener<String>() {
                     @Override
                     public void onResponse(String response) {
+                        if(!currentUsername.isEmpty())
+                        {
+                            ActionBar ab = getSupportActionBar();
+                            if(ab!=null)
+                            {
+                                ab.setTitle(currentUsername);
+                            }
+                            currentUsername = "";
+                        }
                         _googleMap.clear();
                         Gson g= new Gson();
                         Type listType = new TypeToken<ArrayList<Rainbow>>(){}.getType();
@@ -494,6 +516,14 @@ catch(Exception e)
                 i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
                 startActivity(i);
                 return true;
+            case R.id.searchUser:
+                try {
+                    Intent intent = new Intent(getBaseContext(), SearchUser.class);
+                    startActivityForResult(intent, SEARCH_USER);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+                break;
         }
         return super.onOptionsItemSelected(item);
     }
