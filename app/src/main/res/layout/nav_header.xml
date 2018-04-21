@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="192dp"
-    android:background="?attr/colorPrimaryDark"
+    android:background="@drawable/slideheader"
     android:padding="16dp"
     android:theme="@style/ThemeOverlay.AppCompat.Dark"
     android:orientation="vertical"
@@ -11,7 +12,13 @@
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Options"
-        android:textAppearance="@style/TextAppearance.AppCompat.Body1"/>
+        android:gravity="right"
+        android:text="@string/app_name"
+        android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+        android:textColor="@android:color/black"
+        android:textSize="24sp"
+        android:textStyle="italic"
+        android:typeface="monospace"
+        tools:typeface="sans" />
 
 </LinearLayout>

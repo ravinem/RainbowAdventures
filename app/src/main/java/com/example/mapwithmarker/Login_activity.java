@@ -109,6 +109,7 @@ public class Login_activity extends AppCompatActivity {
                             {}
                             if(id > 0 ) {
                                 PrefSingleton.getInstance().writePreference("userid", response);
+                                PrefSingleton.getInstance().writePreference("username", u);
                                 userid = Integer.parseInt(response);
                                 UserId = response;
                                 GoMain();

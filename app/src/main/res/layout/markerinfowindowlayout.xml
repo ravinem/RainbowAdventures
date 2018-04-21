@@ -12,7 +12,7 @@
         android:background="@color/colorPrimary"
         android:theme="@style/ThemeOverlay.AppCompat.ActionBar"
         />
-    <TextView
+ <!--   <TextView
         android:id="@+id/VRainbowName"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -22,7 +22,7 @@
         android:textSize="@dimen/headingSize"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/toolbarShowRainbow"
-        />
+        />-->
 
     <android.support.constraint.Guideline
         android:id="@+id/guideline"
@@ -39,7 +39,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         android:fillViewport="true"
         app:layout_constraintBottom_toTopOf="@id/guideline"
-        app:layout_constraintTop_toBottomOf="@id/VRainbowName">
+        app:layout_constraintTop_toBottomOf="@id/toolbarShowRainbow">
 
         <TextView
             android:id="@+id/VTextDesc"
@@ -50,23 +50,6 @@
             android:paddingLeft="@dimen/padding"
             android:paddingTop="@dimen/padding"
             android:textSize="@dimen/descSize"
-            android:text="vjhvjhvjhvj
-jvjvjhvjhvjvjhvjvhhhh
-
-
-
-
-
-
-
-
-
-
-
-
-vhvjhjhggggggggggggg
-gggggggggggggggggg
-ggggggggggggggggg"
             app:layout_constraintBottom_toBottomOf="@+id/VRainbowName" />
 
     </ScrollView>

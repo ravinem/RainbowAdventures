@@ -14,6 +14,7 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.android.volley.Request;
@@ -38,6 +39,7 @@ public class ShowRainbowActivity extends BaseActivity {
     public static final String TAG = "Register_activity";
     private RequestQueue queue;
     private Rainbow _rainbow;
+    ActionBar actionbar;
     public ShowRainbowActivity() {
         // Required empty public constructor12
     }
@@ -50,10 +52,15 @@ public class ShowRainbowActivity extends BaseActivity {
             setContentView(R.layout.markerinfowindowlayout);
             Toolbar toolbar = findViewById(R.id.toolbarShowRainbow);
             setSupportActionBar(toolbar);
-            ActionBar actionbar = getSupportActionBar();
+            actionbar = getSupportActionBar();
             int id = getIntent().getIntExtra("id",0);
+            boolean b = getIntent().getBooleanExtra("sameUser",true);
+            if(!b)
+            {
+                LinearLayout ll = (LinearLayout)findViewById(R.id.adminBlock);
+                ll.setVisibility(View.GONE);
+            }
             GetRainbowFromId(id);
-            actionbar.setTitle("");
 
         }catch(Exception e)
         {
@@ -63,9 +70,9 @@ public class ShowRainbowActivity extends BaseActivity {
 
     private void FillDataFromRainbow()
     {
-        TextView tvName = (TextView) findViewById(R.id.VRainbowName);
+       // TextView tvName = (TextView) findViewById(R.id.VRainbowName);
         TextView tvDesc = (TextView) findViewById(R.id.VTextDesc);
-        tvName.setText(_rainbow.rainbow_name);
+        //tvName.setText(_rainbow.rainbow_name);
         tvDesc.setText(_rainbow.description);
     }
 
@@ -171,6 +178,7 @@ menu_inflator.inflate(R.menu.options_rainbowdetail,menu);
                         {
                             Gson g = new Gson();
                             _rainbow = g.fromJson(response, Rainbow.class);
+                            actionbar.setTitle(_rainbow.rainbow_name);
                             FillDataFromRainbow();
                         }
                         progressDialog.dismiss();

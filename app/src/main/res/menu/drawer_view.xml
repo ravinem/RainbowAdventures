@@ -7,9 +7,6 @@
             android:id="@+id/searchUser"
             android:title="Search Traveller" />
         <item
-            android:id="@+id/searchNear"
-            android:title="Rainbow near" />
-        <item
             android:id="@+id/logout"
             android:title="Logout" />
     </group>

@@ -43,6 +43,8 @@ import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 
 import com.google.android.gms.maps.UiSettings;
+import com.google.android.gms.maps.model.BitmapDescriptor;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
@@ -84,7 +86,7 @@ public class MapsMarkerActivity extends BaseActivity
     private DrawerLayout drawerLayout = null;
     private static int SEARCH_USER = 1234;
     private static String currentUsername = "";
-
+    private static boolean sameUser = false;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
@@ -106,6 +108,10 @@ public class MapsMarkerActivity extends BaseActivity
         ActionBar actionbar = getSupportActionBar();
         actionbar.setDisplayHomeAsUpEnabled(true);
         actionbar.setHomeAsUpIndicator(R.drawable.ic_menu);
+        String un = PrefSingleton.getInstance().readPreferenceString("username");
+        if(un==null)
+            un="unknown";
+        actionbar.setTitle(un);
 
         Intent intent = getIntent();
         if (Intent.ACTION_SEARCH.equals(intent.getAction())) {
@@ -202,6 +208,14 @@ try {
     _googleMap.setOnMarkerClickListener(this);
     // getFilesForMarkers();
     String id = Login_activity.UserId;
+    if(id!= Login_activity.UserId)
+    {
+        sameUser=false;
+    }
+    else
+    {
+        sameUser=true;
+    }
     PrepareVolleyAllRainbows(AppApplication.baseurl + "/getallRainbowbyUserId?user_id="+id);
     if (location != null) {
         _googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(location, mapsZoom));
@@ -227,11 +241,14 @@ catch(Exception e)
     }
 
     private void prepareNewlyAddedRainbow(Rainbow r) {
-
-
+            BitmapDescriptor icon = BitmapDescriptorFactory.fromResource(R.drawable.ic_rainbow);
             LatLng c = new LatLng(r.latitude,r.longitude);
-            _googleMap.addMarker(new MarkerOptions().position(c)
-                    .title(r.rainbow_name)).setTag(r.id);
+            Marker m = _googleMap.addMarker(
+                    new MarkerOptions()
+                            .position(c)
+                            .title(r.rainbow_name)
+                            .icon(icon));
+            m.setTag(r.id);
     }
 
     @Override
@@ -298,7 +315,6 @@ catch(Exception e)
             e.printStackTrace();
         }
     }
-
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -373,7 +389,7 @@ catch(Exception e)
                     @Override
                     public void onComplete(@NonNull Task<Location> task) {
                         if (task.isSuccessful() && task.getResult() != null) {
-                           //Location mLastLocation = task.getResult();
+                            //Location mLastLocation = task.getResult();
                             //LatLng location= new LatLng(mLastLocation.getLatitude(),mLastLocation.getLongitude());
                             _googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(location,mapsZoom));
                             /*_googleMap.addCircle(new CircleOptions()
@@ -384,7 +400,7 @@ catch(Exception e)
                                     .radius(100)
                                     .visible(true));*/
                         } else {
-                           currentlocationhelperObject.showSnackbar(getString(R.string.no_location_detected));
+                            currentlocationhelperObject.showSnackbar(getString(R.string.no_location_detected));
                         }
                     }
                 });
@@ -486,10 +502,14 @@ catch(Exception e)
                         Gson g= new Gson();
                         Type listType = new TypeToken<ArrayList<Rainbow>>(){}.getType();
                         List<Rainbow> rs = g.fromJson(response,listType);
+                        BitmapDescriptor icon = BitmapDescriptorFactory.fromResource(R.drawable.ic_rainbow);
                         for (Rainbow r :rs) {
                             LatLng c = new LatLng(r.latitude,r.longitude);
-                            _googleMap.addMarker(new MarkerOptions().position(c)
-                                  .title(r.rainbow_name)).setTag(r.id);
+                            Marker m = _googleMap.addMarker(new MarkerOptions()
+                                    .position(c)
+                                    .title(r.rainbow_name)
+                                    .icon(icon));
+                            m.setTag(r.id);
                         }
                         progressDialog.dismiss();
                     }
